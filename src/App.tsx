@@ -1,28 +1,42 @@
-//import { marked } from 'marked';
 import { useState } from 'react';
-import MarkdownEditor from './components/MarkdownEditor';
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { SmartEditor } from './components/SmartEditor';
+import { SmartPreview } from './components/SmartPreview';
+import './style/App.css'; 
 
-export default function App() {
-	const [text, setText] = useState('');
-	//const [preview, setPreview] = useState('');
+function App() {
+  const [noteContent, setNoteContent] = useState<string>("# Titolo della Nota\n\nBenvenuto in **Second Brain**.\nScrivi qui a sinistra...");
 
-	const handleEditorChange = async (value: any) => {
-		setText(value);
-		//const html = await marked(value);
-		//setPreview(html); // renderizza markdown in HTML
-	};
+  return (
+    <div className="app-container">
+      
+      <header className="app-header">
+        <h1>Second Brain</h1>
+      </header>
 
-	return (
-		<div>
-			<div className='markdown-preview'>
-				<MarkdownEditor initialValue={text} onChange={handleEditorChange} />
-			</div>
-			{
-				// <div
-				// 	className='w-1/2 p-4 overflow-auto prose'
-				// 	dangerouslySetInnerHTML={{ __html: preview }}
-				// />
-			}
-		</div>
-	);
+      {/* Area di Lavoro con Pannelli Ridimensionabili */}
+      <main className="workspace">
+        <PanelGroup direction="horizontal">
+          
+          {/* LATO SINISTRO: EDITOR */}
+          <Panel defaultSize={50} minSize={20} className="editor-pane">
+            <SmartEditor value={noteContent} onChange={setNoteContent} />
+          </Panel>
+
+          {/* LA BARRA DI TRASCINAMENTO CENTRALE */}
+          <PanelResizeHandle className="resize-handle">
+            <div className="resize-handle-bar" />
+          </PanelResizeHandle>
+
+          {/* LATO DESTRO: ANTEPRIMA */}
+          <Panel defaultSize={50} minSize={20} className="preview-pane">
+            <SmartPreview content={noteContent} />
+          </Panel>
+
+        </PanelGroup>
+      </main>
+    </div>
+  );
 }
+
+export default App;

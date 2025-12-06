@@ -1,0 +1,100 @@
+/* Resetta i margini base */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f3f4f6;
+}
+
+/* Header */
+.app-header {
+  background-color: #fff;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  flex-shrink: 0; 
+}
+
+.app-header h1 {
+  font-size: 1.5rem;
+  margin: 0;
+  color: #111827;
+  font-weight: 700;
+}
+
+/* Area di lavoro principale */
+.workspace {
+  flex: 1; 
+  padding: 10px; 
+  overflow: hidden;
+  height: 100%; 
+}
+
+/* STILE DELLA BARRA DI RIDIMENSIONAMENTO (HANDLE) */
+.resize-handle {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 12px; 
+  cursor: col-resize;
+  background-color: transparent;
+  transition: background-color 0.2s;
+  outline: none;
+}
+
+/* La linea visibile dentro l'area cliccabile */
+.resize-handle-bar {
+  width: 2px;
+  height: 50%;
+  background-color: #d1d5db;
+  border-radius: 1px;
+  transition: background-color 0.2s;
+}
+
+/* Effetti Hover/Active sulla barra */
+.resize-handle:hover .resize-handle-bar,
+.resize-handle[data-resize-handle-active] .resize-handle-bar {
+  background-color: #4f46e5; 
+  height: 100%; 
+}
+
+/* Pannelli interni */
+.editor-pane, .preview-pane {
+  height: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+  background: white;
+  border: 1px solid #e5e7eb;
+}
+
+/* Stile per il contenitore di editor */
+.EasyMDEContainer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border: none !important;
+}
+.CodeMirror {
+  flex: 1;
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+/* Stile per il pannello di anteprima */
+.markdown-body {
+  height: 100%;
+  overflow-y: auto;
+  padding: 2rem;
+  border: none !important;
+}
