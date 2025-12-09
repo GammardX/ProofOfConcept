@@ -1,0 +1,194 @@
+body {
+	margin: 0 !important;
+}
+:root {
+	--width-sidebar: 70px;
+
+	font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+	.app-layout {
+		display: grid;
+		grid-template-columns: var(--width-sidebar) 1fr; /* sidebar | editor */
+		height: 100vh;
+		width: 100vw;
+		overflow: hidden;
+
+		.sidebar {
+			width: var(--width-sidebar) !important;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			padding-top: 1rem;
+			gap: 1rem;
+		}
+
+		.sidebar button {
+			width: 48px;
+			height: 48px;
+			border: none;
+			border-radius: 8px;
+			cursor: pointer;
+			font-size: 18px;
+		}
+	}
+	/* WRAPPER GENERALE -
+	
+	------------------------------------------------------- */
+	.markdown-preview {
+		.CodeMirror {
+			width: calc(100% - var(--width-sidebar)) !important;
+			margin-left: var(--width-sidebar);
+		}
+
+		.CodeMirror-sided {
+			width: calc(50% - var(--width-sidebar) / 2) !important;
+		}
+
+		.editor-preview-active-side {
+			width: calc(50% - var(--width-sidebar) / 2);
+		}
+		.editor-preview {
+			padding: 1.5rem;
+			color: #1a1a1a;
+			font-size: 16px;
+			margin: 0 auto;
+			font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica,
+				Arial, sans-serif;
+			/* TITOLI ------------------------------------------------------------------ */
+			h1,
+			h2,
+			h3,
+			h4,
+			h5,
+			h6 {
+				font-weight: 700;
+				margin-top: 2rem;
+				margin-bottom: 1rem;
+				line-height: 1.25;
+			}
+
+			h1 {
+				font-size: 2.2rem;
+				border-bottom: 1px solid #e5e7eb;
+				padding-bottom: 0.3rem;
+			}
+
+			h2 {
+				font-size: 1.8rem;
+				border-bottom: 1px solid #e5e7eb;
+				padding-bottom: 0.2rem;
+			}
+
+			h3 {
+				font-size: 1.5rem;
+			}
+
+			/* PARAGRAFI E TESTO ------------------------------------------------------- */
+			p {
+				margin: 1rem 0;
+			}
+
+			strong {
+				font-weight: 700;
+			}
+
+			em {
+				font-style: italic;
+			}
+
+			/* CODE BLOCK + INLINE CODE ------------------------------------------------ */
+			pre {
+				background: #f6f8fa;
+				padding: 1rem;
+				border-radius: 6px;
+				overflow-x: auto;
+				border: 1px solid #e1e4e8;
+				margin: 1.2rem 0;
+			}
+
+			code {
+				background: #f6f8fa;
+				padding: 2px 5px;
+				border-radius: 4px;
+				font-size: 0.95rem;
+				border: 1px solid #e0e0e0;
+			}
+
+			pre code {
+				background: transparent;
+				border: none;
+				padding: 0;
+			}
+
+			/* LISTE ------------------------------------------------------------------- */
+			ul,
+			ol {
+				padding-left: 2rem;
+				margin: 1rem 0;
+			}
+
+			li {
+				margin: 0.4rem 0;
+			}
+
+			/* TABELLE ----------------------------------------------------------------- */
+			table {
+				width: 100%;
+				border-collapse: collapse;
+				margin: 1.2rem 0;
+				font-size: 0.95rem;
+			}
+
+			th {
+				background: #f3f4f6;
+				padding: 0.6rem;
+				border: 1px solid #d1d5db;
+				font-weight: 600;
+			}
+
+			td {
+				padding: 0.6rem;
+				border: 1px solid #e5e7eb;
+			}
+
+			/* CITAZIONI --------------------------------------------------------------- */
+			blockquote {
+				border-left: 4px solid #9ca3af;
+				padding-left: 1rem;
+				margin: 1.2rem 0;
+				color: #4b5563;
+			}
+
+			/* HR ---------------------------------------------------------------------- */
+			hr {
+				border: none;
+				border-top: 1px solid #e5e7eb;
+				margin: 2rem 0;
+			}
+
+			/* IMMAGINI ---------------------------------------------------------------- */
+			img {
+				max-width: 100%;
+				border-radius: 6px;
+				margin: 1rem 0;
+			}
+
+			/* ELEMENTI SPECIALI ------------------------------------------------------- */
+
+			/* Code block for mermaid fences, before JS rendering */
+			pre code.language-mermaid {
+				background: #eef2ff;
+				border: 1px solid #c7d2fe;
+				display: block;
+				padding: 1rem;
+				color: #1e3a8a;
+				font-size: 0.95rem;
+			}
+
+			/* Inline HTML <br> fix */
+			br {
+				line-height: 150%;
+			}
+		}
+	}
+}

@@ -1,42 +1,46 @@
+//import { marked } from 'marked';
 import { useState } from 'react';
-import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
-import { SmartEditor } from './components/SmartEditor';
-import { SmartPreview } from './components/SmartPreview';
-import './style/App.css'; 
+import MarkdownEditor from './components/MarkdownEditor';
 
-function App() {
-  const [noteContent, setNoteContent] = useState<string>("# Titolo della Nota\n\nBenvenuto in **Second Brain**.\nScrivi qui a sinistra...");
+export default function App() {
+	const [text, setText] = useState(`# Intro
+Go ahead, play around with the editor! Be sure to check out **bold** and *italic* styling, or even [links](https://google.com). You can type the Markdown syntax, use the toolbar, or use shortcuts like.
 
-  return (
-    <div className="app-container">
-      
-      <header className="app-header">
-        <h1>Second Brain</h1>
-      </header>
+## Lists
+Unordered lists can be started using the toolbar or by typing . Ordered lists can be started by typing.
 
-      {/* Area di Lavoro con Pannelli Ridimensionabili */}
-      <main className="workspace">
-        <PanelGroup direction="horizontal">
-          
-          {/* LATO SINISTRO: EDITOR */}
-          <Panel defaultSize={50} minSize={20} className="editor-pane">
-            <SmartEditor value={noteContent} onChange={setNoteContent} />
-          </Panel>
+#### Unordered
+* Lists are a piece of cake
+* They even auto continue as you type
+* A double enter will end them
+* Tabs and shift-tabs work too
 
-          {/* LA BARRA DI TRASCINAMENTO CENTRALE */}
-          <PanelResizeHandle className="resize-handle">
-            <div className="resize-handle-bar" />
-          </PanelResizeHandle>
+#### Ordered
+1. Numbered lists...
+2. ...work too!
 
-          {/* LATO DESTRO: ANTEPRIMA */}
-          <Panel defaultSize={50} minSize={20} className="preview-pane">
-            <SmartPreview content={noteContent} />
-          </Panel>
+## What about images?
+![Yes](https://i.imgur.com/sZlktY7.png)`);
+	//const [preview, setPreview] = useState('');
 
-        </PanelGroup>
-      </main>
-    </div>
-  );
+	const handleEditorChange = async (value: any) => {
+		setText(value);
+		//const html = await marked(value);
+		//setPreview(html); // renderizza markdown in HTML
+	};
+
+	return (
+		<div className='app-layout'>
+			{/* 🔹 COLONNA SINISTRA - TOOLBAR FUNZIONI */}
+			<aside className='sidebar'>
+				<button>➕ Nuova nota</button>
+				<button>💾 Salva</button>
+				<button>🧠 AI</button>
+				<button>📁 Archivio</button>
+			</aside>
+			<div className='markdown-preview'>
+				<MarkdownEditor initialValue={text} onChange={handleEditorChange} />
+			</div>
+		</div>
+	);
 }
-
-export default App;
