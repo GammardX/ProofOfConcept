@@ -50,7 +50,6 @@ export default function MarkdownEditor({
 
 	// Attiva fullscreen automaticamente al caricamento
 	useEffect(() => {
-		console.log('dioca');
 		// Piccolo ritardo per assicurarsi che l'editor sia completamente inizializzato
 		setTimeout(() => {
 			if (editorRef.current && editorRef.current.codemirror) {

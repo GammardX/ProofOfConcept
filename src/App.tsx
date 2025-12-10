@@ -1,6 +1,7 @@
 //import { marked } from 'marked';
 import { useState } from 'react';
 import MarkdownEditor from './components/MarkdownEditor';
+import Sidebar from './components/Sidebar';
 
 export default function App() {
 	const [text, setText] = useState(`# Intro
@@ -23,6 +24,11 @@ Unordered lists can be started using the toolbar or by typing . Ordered lists ca
 ![Yes](https://i.imgur.com/sZlktY7.png)`);
 	//const [preview, setPreview] = useState('');
 
+	const llmBridge = {
+		currentText: () => text,
+		setText: (t: string) => setText(t)
+	};
+
 	const handleEditorChange = async (value: any) => {
 		setText(value);
 		//const html = await marked(value);
@@ -32,12 +38,7 @@ Unordered lists can be started using the toolbar or by typing . Ordered lists ca
 	return (
 		<div className='app-layout'>
 			{/* 🔹 COLONNA SINISTRA - TOOLBAR FUNZIONI */}
-			<aside className='sidebar'>
-				<button>➕ Nuova nota</button>
-				<button>💾 Salva</button>
-				<button>🧠 AI</button>
-				<button>📁 Archivio</button>
-			</aside>
+			<Sidebar llm={llmBridge} />
 			<div className='markdown-preview'>
 				<MarkdownEditor initialValue={text} onChange={handleEditorChange} />
 			</div>

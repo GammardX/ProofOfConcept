@@ -30,6 +30,9 @@ body {
 			cursor: pointer;
 			font-size: 18px;
 		}
+		.sidebar button:hover {
+			background: #334155;
+		}
 	}
 	/* WRAPPER GENERALE -
 	
@@ -48,7 +51,7 @@ body {
 			width: calc(50% - var(--width-sidebar) / 2);
 		}
 		.editor-preview {
-			padding: 1.5rem;
+			padding: 0 1.5rem;
 			color: #1a1a1a;
 			font-size: 16px;
 			margin: 0 auto;
