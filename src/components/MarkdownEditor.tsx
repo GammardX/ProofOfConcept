@@ -2,6 +2,7 @@ import type EasyMDE from 'easymde';
 import 'easymde/dist/easymde.min.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import SimpleMDE from 'react-simplemde-editor';
+import '../style/md-editor.css';
 
 interface MarkdownEditorProps {
 	initialValue?: string;

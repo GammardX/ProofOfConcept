@@ -1,5 +1,6 @@
 //import { marked } from 'marked';
 import { useState } from 'react';
+import DialogLLM from './components/DialogLLM';
 import MarkdownEditor from './components/MarkdownEditor';
 import Sidebar from './components/Sidebar';
 
@@ -24,9 +25,14 @@ Unordered lists can be started using the toolbar or by typing . Ordered lists ca
 ![Yes](https://i.imgur.com/sZlktY7.png)`);
 	//const [preview, setPreview] = useState('');
 
+	const openDialogWithText = (result: string) => {
+		setDialogText(result);
+		setDialogOpen(true);
+	};
+
 	const llmBridge = {
 		currentText: () => text,
-		setText: (t: string) => setText(t)
+		openDialog: openDialogWithText
 	};
 
 	const handleEditorChange = async (value: any) => {
@@ -35,6 +41,9 @@ Unordered lists can be started using the toolbar or by typing . Ordered lists ca
 		//setPreview(html); // renderizza markdown in HTML
 	};
 
+	const [dialogOpen, setDialogOpen] = useState(false);
+	const [dialogText, setDialogText] = useState('');
+
 	return (
 		<div className='app-layout'>
 			{/* 🔹 COLONNA SINISTRA - TOOLBAR FUNZIONI */}
@@ -42,6 +51,11 @@ Unordered lists can be started using the toolbar or by typing . Ordered lists ca
 			<div className='markdown-preview'>
 				<MarkdownEditor initialValue={text} onChange={handleEditorChange} />
 			</div>
+			<DialogLLM
+				text={dialogText}
+				open={dialogOpen}
+				onClose={() => setDialogOpen(false)}
+			/>
 		</div>
 	);
 }

@@ -1,42 +1,5 @@
-body {
-	margin: 0 !important;
-}
 :root {
-	--width-sidebar: 70px;
-
-	font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-
-	.app-layout {
-		display: grid;
-		grid-template-columns: var(--width-sidebar) 1fr; /* sidebar | editor */
-		height: 100vh;
-		width: 100vw;
-		overflow: hidden;
-
-		.sidebar {
-			width: var(--width-sidebar) !important;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			padding-top: 1rem;
-			gap: 1rem;
-		}
-
-		.sidebar button {
-			width: 48px;
-			height: 48px;
-			border: none;
-			border-radius: 8px;
-			cursor: pointer;
-			font-size: 18px;
-		}
-		.sidebar button:hover {
-			background: #334155;
-		}
-	}
-	/* WRAPPER GENERALE -
-	
-	------------------------------------------------------- */
+	/* WRAPPER GENERALE */
 	.markdown-preview {
 		.CodeMirror {
 			width: calc(100% - var(--width-sidebar)) !important;
