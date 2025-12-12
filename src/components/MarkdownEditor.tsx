@@ -14,7 +14,6 @@ export default function MarkdownEditor({
     onChange
 }: MarkdownEditorProps) {
     const [value, setValue] = useState(initialValue);
-    
     const [editorInstance, setEditorInstance] = useState<EasyMDE | null>(null);
 
     const options = useMemo(() => {
@@ -23,12 +22,12 @@ export default function MarkdownEditor({
             placeholder: 'Scrivi qui le tue note in Markdown...',
             autofocus: true,
             status: false,
-            sideBySideFullscreen: false, 
+            sideBySideFullscreen: false,
             toolbar: [
                 'bold', 'italic', 'heading', '|',
                 'quote', 'unordered-list', 'ordered-list', '|',
                 'link', 'image', '|',
-                'side-by-side'
+                'side-by-side' 
             ] as const
         };
     }, []);
@@ -38,31 +37,19 @@ export default function MarkdownEditor({
         if (onChange) onChange(text);
     };
 
-    const getMdeInstance = (instance: EasyMDE) => {
-        setEditorInstance(instance);
-    };
-
     useEffect(() => {
         if (!editorInstance) return;
-
-        const timer = setTimeout(() => {
-            if (!editorInstance.isSideBySideActive()) {
-                editorInstance.toggleSideBySide();
-            }
-            if (editorInstance.codemirror) {
-                editorInstance.codemirror.refresh();
-            }
-        }, 10);
-
-        return () => clearTimeout(timer);
-    }, [editorInstance]); 
+        if (!editorInstance.isSideBySideActive()) {
+            editorInstance.toggleSideBySide();
+        }
+    }, [editorInstance]);
 
     return (
         <SimpleMDE
             value={value}
             onChange={handleChange}
             options={options}
-            getMdeInstance={getMdeInstance}
+            getMdeInstance={setEditorInstance} 
             className="h-full"
         />
     );
