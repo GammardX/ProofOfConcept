@@ -1,56 +1,139 @@
-//import { marked } from 'marked';
-import { useState } from 'react';
-import DialogLLM from './components/DialogLLM';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import MarkdownEditor from './components/MarkdownEditor';
-import Sidebar from './components/Sidebar';
+import FileSidebar from './components/FileSidebar'; 
+import TopBar from './components/TopBar';
+import DialogLLM from './components/DialogLLM';
+import './style/main.css';
+
+// Tipo dati per una nota
+export interface Note {
+	id: string;
+	title: string;
+	content: string;
+}
+
+const INITIAL_NOTES: Note[] = [
+	{ id: '1', title: 'Benvenuto', content: '# Ciao!\nQuesta è la tua prima nota.' },
+	{ id: '2', title: 'Idee Progetto', content: '## Cose da fare\n* Creare sidebar\n* Aggiungere AI' }
+];
 
 export default function App() {
-	const [text, setText] = useState(`# Intro
-Go ahead, play around with the editor! Be sure to check out **bold** and *italic* styling, or even [links](https://google.com). You can type the Markdown syntax, use the toolbar, or use shortcuts like.
+	// --- STATO DATI ---
+	const [notes, setNotes] = useState<Note[]>(INITIAL_NOTES);
+	const [activeNoteId, setActiveNoteId] = useState<string>(INITIAL_NOTES[0].id);
 
-## Lists
-Unordered lists can be started using the toolbar or by typing . Ordered lists can be started by typing.
+	// Nota attiva corrente
+	const activeNote = notes.find((n) => n.id === activeNoteId) || notes[0];
 
-#### Unordered
-* Lists are a piece of cake
-* They even auto continue as you type
-* A double enter will end them
-* Tabs and shift-tabs work too
+	// --- STATO LAYOUT (Resizable) ---
+	const [sidebarWidth, setSidebarWidth] = useState(250);
+	const [isResizing, setIsResizing] = useState(false);
+	const sidebarRef = useRef<HTMLDivElement>(null);
 
-#### Ordered
-1. Numbered lists...
-2. ...work too!
-
-## What about images?
-![Yes](https://i.imgur.com/sZlktY7.png)`);
-	//const [preview, setPreview] = useState('');
-
-	const openDialogWithText = (result: string) => {
-		setDialogText(result);
-		setDialogOpen(true);
+	// --- GESTIONE NOTE ---
+	const handleUpdateNote = (newText: string) => {
+		setNotes((prev) =>
+			prev.map((note) =>
+				note.id === activeNoteId ? { ...note, content: newText } : note
+			)
+		);
 	};
 
-	const llmBridge = {
-		currentText: () => text,
-		openDialog: openDialogWithText
+	const handleCreateNote = () => {
+		const newNote: Note = {
+			id: Date.now().toString(),
+			title: 'Nuova Nota',
+			content: '# Nuova nota'
+		};
+		setNotes([...notes, newNote]);
+		setActiveNoteId(newNote.id);
 	};
 
-	const handleEditorChange = async (value: any) => {
-		setText(value);
-		//const html = await marked(value);
-		//setPreview(html); // renderizza markdown in HTML
+	const handleDeleteNote = (id: string, e: React.MouseEvent) => {
+		e.stopPropagation();
+		const newNotes = notes.filter((n) => n.id !== id);
+		setNotes(newNotes);
+		if (activeNoteId === id && newNotes.length > 0) {
+			setActiveNoteId(newNotes[0].id);
+		}
 	};
 
+	// --- GESTIONE LLM DIALOG ---
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [dialogText, setDialogText] = useState('');
 
+	const llmBridge = {
+		currentText: () => activeNote?.content || '',
+		openDialog: (text: string) => {
+			setDialogText(text);
+			setDialogOpen(true);
+		}
+	};
+
+	// --- LOGICA RESIZING SIDEBAR ---
+	const startResizing = useCallback(() => setIsResizing(true), []);
+	const stopResizing = useCallback(() => setIsResizing(false), []);
+
+	const resize = useCallback(
+		(mouseMoveEvent: MouseEvent) => {
+			if (isResizing) {
+				const newWidth = mouseMoveEvent.clientX;
+				if (newWidth > 100 && newWidth < 600) { // Limiti min/max
+					setSidebarWidth(newWidth);
+				}
+			}
+		},
+		[isResizing]
+	);
+
+	useEffect(() => {
+		window.addEventListener('mousemove', resize);
+		window.addEventListener('mouseup', stopResizing);
+		return () => {
+			window.removeEventListener('mousemove', resize);
+			window.removeEventListener('mouseup', stopResizing);
+		};
+	}, [resize, stopResizing]);
+
 	return (
-		<div className='app-layout'>
-			{/* 🔹 COLONNA SINISTRA - TOOLBAR FUNZIONI */}
-			<Sidebar llm={llmBridge} />
-			<div className='markdown-preview'>
-				<MarkdownEditor initialValue={text} onChange={handleEditorChange} />
+		<div className='app-container'>
+			{/* SIDEBAR SINISTRA */}
+			<div 
+				className='sidebar-wrapper' 
+				style={{ width: sidebarWidth }}
+				ref={sidebarRef}
+			>
+				<FileSidebar 
+					notes={notes} 
+					activeId={activeNoteId} 
+					onSelect={setActiveNoteId} 
+					onCreate={handleCreateNote}
+					onDelete={handleDeleteNote}
+				/>
 			</div>
+
+			{/* MANIGLIA DI RIDIMENSIONAMENTO */}
+			<div className='resizer' onMouseDown={startResizing} />
+
+			{/* AREA PRINCIPALE */}
+			<div className='main-content'>
+				{activeNote ? (
+					<>
+						<TopBar title={activeNote.title} llm={llmBridge} />
+						<div className='editor-wrapper'>
+							{/* Usiamo la chiave 'key' per forzare il re-render quando cambia file */}
+							<MarkdownEditor 
+								key={activeNote.id} 
+								initialValue={activeNote.content} 
+								onChange={handleUpdateNote} 
+							/>
+						</div>
+					</>
+				) : (
+					<div className="empty-state">Nessuna nota selezionata</div>
+				)}
+			</div>
+
 			<DialogLLM
 				text={dialogText}
 				open={dialogOpen}

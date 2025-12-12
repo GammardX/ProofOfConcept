@@ -22,25 +22,17 @@ export default function MarkdownEditor({
 			placeholder: 'Scrivi qui le tue note in Markdown...',
 			autofocus: true,
 			status: false,
+			sideBySideFullscreen: false, // Importante per il layout grid
 			toolbar: [
-				'bold',
-				'italic',
-				'heading',
-				'|',
-				'quote',
-				'unordered-list',
-				'ordered-list',
-				'|',
-				'link',
-				'image',
-				'|',
-				'preview',
-				'side-by-side'
+				'bold', 'italic', 'heading', '|',
+				'quote', 'unordered-list', 'ordered-list', '|',
+				'link', 'image', '|',
+				'preview', 'side-by-side'
 			] as const
 		};
 	}, []);
 
-	const handleChange = (text: any) => {
+	const handleChange = (text: string) => {
 		setValue(text);
 		if (onChange) onChange(text);
 	};
@@ -49,15 +41,29 @@ export default function MarkdownEditor({
 		editorRef.current = instance;
 	};
 
-	// Attiva fullscreen automaticamente al caricamento
+	// --- FIX PER IL PRIMO AVVIO ---
 	useEffect(() => {
-		// Piccolo ritardo per assicurarsi che l'editor sia completamente inizializzato
-		setTimeout(() => {
-			if (editorRef.current && editorRef.current.codemirror) {
-				// Cast per bypassare il controllo TypeScript
-				(editorRef.current.codemirror as any).setOption('fullScreen', true);
+		// Aumentiamo leggermente il tempo per dare modo al CSS Grid di stabilizzarsi
+		const timer = setTimeout(() => {
+			if (!editorRef.current) return;
+
+			const instance = editorRef.current;
+			
+			// 1. Attiva Side-by-Side se spento
+			if (!instance.isSideBySideActive()) {
+				instance.toggleSideBySide();
 			}
-		}, 100);
+
+			// 2. PASSAGGIO FONDAMENTALE MANCANTE:
+			// Forziamo il motore CodeMirror a ricalcolare le dimensioni.
+			// Senza questo, al primo avvio vede dimensioni errate finché non clicchi o ridimensioni.
+			if (instance.codemirror) {
+				instance.codemirror.refresh();
+			}
+
+		}, 200); // 200ms è più sicuro di 100ms per il primo rendering
+
+		return () => clearTimeout(timer);
 	}, []);
 
 	return (
@@ -66,6 +72,7 @@ export default function MarkdownEditor({
 			onChange={handleChange}
 			options={options}
 			getMdeInstance={getMdeInstance}
+			className="h-full"
 		/>
 	);
 }

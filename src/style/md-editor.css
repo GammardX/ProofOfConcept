@@ -1,160 +1,107 @@
-:root {
-	/* WRAPPER GENERALE */
-	.markdown-preview {
-		.CodeMirror {
-			width: calc(100% - var(--width-sidebar)) !important;
-			margin-left: var(--width-sidebar);
-		}
+/* Stile tipografico per l'area di editing e preview */
+.CodeMirror, .editor-preview-side, .editor-preview {
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #1f2937;
+    background-color: #ffffff;
+}
 
-		.CodeMirror-sided {
-			width: calc(50% - var(--width-sidebar) / 2) !important;
-		}
+/* Padding interno per non avere il testo attaccato ai bordi */
+.CodeMirror-lines {
+    padding: 20px !important;
+}
 
-		.editor-preview-active-side {
-			width: calc(50% - var(--width-sidebar) / 2);
-		}
-		.editor-preview {
-			padding: 0 1.5rem;
-			color: #1a1a1a;
-			font-size: 16px;
-			margin: 0 auto;
-			font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica,
-				Arial, sans-serif;
-			/* TITOLI ------------------------------------------------------------------ */
-			h1,
-			h2,
-			h3,
-			h4,
-			h5,
-			h6 {
-				font-weight: 700;
-				margin-top: 2rem;
-				margin-bottom: 1rem;
-				line-height: 1.25;
-			}
+.editor-preview-side {
+    padding: 20px !important;
+}
 
-			h1 {
-				font-size: 2.2rem;
-				border-bottom: 1px solid #e5e7eb;
-				padding-bottom: 0.3rem;
-			}
+/* --- TITOLI --- */
+.cm-header-1, .editor-preview h1, .editor-preview-side h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 0.3rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    color: #111827;
+    line-height: 1.2;
+}
 
-			h2 {
-				font-size: 1.8rem;
-				border-bottom: 1px solid #e5e7eb;
-				padding-bottom: 0.2rem;
-			}
+.cm-header-2, .editor-preview h2, .editor-preview-side h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 0.2rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.8rem;
+    color: #1f2937;
+}
 
-			h3 {
-				font-size: 1.5rem;
-			}
+.cm-header-3, .editor-preview h3, .editor-preview-side h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-top: 1rem;
+}
 
-			/* PARAGRAFI E TESTO ------------------------------------------------------- */
-			p {
-				margin: 1rem 0;
-			}
+/* --- BLOCCHI DI CODICE --- */
+.editor-preview pre, .editor-preview-side pre {
+    background: #f3f4f6;
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    border: 1px solid #e5e7eb;
+}
 
-			strong {
-				font-weight: 700;
-			}
+.editor-preview code, .editor-preview-side code {
+    background: #f3f4f6;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.875em;
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    color: #dc2626; 
+}
 
-			em {
-				font-style: italic;
-			}
+.editor-preview pre code, .editor-preview-side pre code {
+    background: transparent;
+    padding: 0;
+    color: inherit;
+    border: none;
+}
 
-			/* CODE BLOCK + INLINE CODE ------------------------------------------------ */
-			pre {
-				background: #f6f8fa;
-				padding: 1rem;
-				border-radius: 6px;
-				overflow-x: auto;
-				border: 1px solid #e1e4e8;
-				margin: 1.2rem 0;
-			}
+/* --- CITAZIONI --- */
+.cm-quote, .editor-preview blockquote, .editor-preview-side blockquote {
+    border-left: 4px solid #d1d5db;
+    padding-left: 1rem;
+    margin-left: 0;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    color: #4b5563;
+    font-style: italic;
+}
 
-			code {
-				background: #f6f8fa;
-				padding: 2px 5px;
-				border-radius: 4px;
-				font-size: 0.95rem;
-				border: 1px solid #e0e0e0;
-			}
+/* --- IMMAGINI --- */
+.editor-preview img, .editor-preview-side img {
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
 
-			pre code {
-				background: transparent;
-				border: none;
-				padding: 0;
-			}
+/* --- TABELLE --- */
+.editor-preview table, .editor-preview-side table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+}
 
-			/* LISTE ------------------------------------------------------------------- */
-			ul,
-			ol {
-				padding-left: 2rem;
-				margin: 1rem 0;
-			}
+.editor-preview th, .editor-preview td,
+.editor-preview-side th, .editor-preview-side td {
+    border: 1px solid #e5e7eb;
+    padding: 0.75rem;
+    text-align: left;
+}
 
-			li {
-				margin: 0.4rem 0;
-			}
-
-			/* TABELLE ----------------------------------------------------------------- */
-			table {
-				width: 100%;
-				border-collapse: collapse;
-				margin: 1.2rem 0;
-				font-size: 0.95rem;
-			}
-
-			th {
-				background: #f3f4f6;
-				padding: 0.6rem;
-				border: 1px solid #d1d5db;
-				font-weight: 600;
-			}
-
-			td {
-				padding: 0.6rem;
-				border: 1px solid #e5e7eb;
-			}
-
-			/* CITAZIONI --------------------------------------------------------------- */
-			blockquote {
-				border-left: 4px solid #9ca3af;
-				padding-left: 1rem;
-				margin: 1.2rem 0;
-				color: #4b5563;
-			}
-
-			/* HR ---------------------------------------------------------------------- */
-			hr {
-				border: none;
-				border-top: 1px solid #e5e7eb;
-				margin: 2rem 0;
-			}
-
-			/* IMMAGINI ---------------------------------------------------------------- */
-			img {
-				max-width: 100%;
-				border-radius: 6px;
-				margin: 1rem 0;
-			}
-
-			/* ELEMENTI SPECIALI ------------------------------------------------------- */
-
-			/* Code block for mermaid fences, before JS rendering */
-			pre code.language-mermaid {
-				background: #eef2ff;
-				border: 1px solid #c7d2fe;
-				display: block;
-				padding: 1rem;
-				color: #1e3a8a;
-				font-size: 0.95rem;
-			}
-
-			/* Inline HTML <br> fix */
-			br {
-				line-height: 150%;
-			}
-		}
-	}
+.editor-preview th, .editor-preview-side th {
+    background-color: #f9fafb;
+    font-weight: 600;
 }
