@@ -25,9 +25,8 @@ export default function MarkdownEditor({
             sideBySideFullscreen: false,
             toolbar: [
                 'bold', 'italic', 'heading', '|',
-                'quote', 'unordered-list', 'ordered-list', '|',
-                'link', 'image', '|',
-                'side-by-side' 
+                'code', 'quote', 'unordered-list', 'ordered-list', 'table', '|',
+                'link', 'image',
             ] as const
         };
     }, []);
