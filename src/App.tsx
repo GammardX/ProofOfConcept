@@ -16,9 +16,9 @@ const INITIAL_NOTES: Note[] = [
     { 
     id: '1', 
     title: 'Benvenuto', 
-    content: '# Benvenuto...' 
+    content: '## Lists\nUnordered lists can be started using the toolbar or by typing . Ordered lists can be started by typing.\n\n#### Unordered\n* Lists are a piece of cake\n* They even auto continue as you type\n* A double enter will end them\n* Tabs and shift-tabs work too\n\n#### Ordered\n1. Numbered lists...\n2. ...work too!\n\n## What about images?\n![Yes](https://i.imgur.com/sZlktY7.png)`)'
     },
-    { id: '2', title: 'Idee Progetto', content: '## Cose da fare\n* Creare sidebar\n* Aggiungere AI' }
+    { id: '2', title: 'Idee Progetto', content: '## Cose da fare\n* Aggiungere AI' }
 ];
 
 export default function App() {
