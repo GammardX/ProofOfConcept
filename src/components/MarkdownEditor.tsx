@@ -23,20 +23,11 @@ export default function MarkdownEditor({
 			autofocus: true,
 			status: false,
 			toolbar: [
-				'bold',
-				'italic',
-				'heading',
-				'|',
-				'quote',
-				'unordered-list',
-				'ordered-list',
-				'|',
-				'link',
-				'image',
-				'|',
-				'preview',
-				'side-by-side'
-			] as const
+                'bold', 'italic', 'heading', '|',
+                'code', 'quote', 'unordered-list', 'ordered-list', 'table', '|',
+                'link', 'image', '|',
+				'preview', 'side-by-side'
+            ] as const
 		};
 	}, []);
 
