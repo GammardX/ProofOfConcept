@@ -4,11 +4,6 @@ import { useEffect, useMemo, useState } from 'react';
 import SimpleMDE from 'react-simplemde-editor';
 import '../style/md-editor.css';
 
-// Import per fare colorazioni sintattiche nel markdown
-import hljs from 'highlight.js';
-import './utils/languageImports';
-
-
 interface MarkdownEditorProps {
     initialValue?: string;
     onChange?: (text: string) => void;
@@ -31,12 +26,12 @@ export default function MarkdownEditor({
             renderingConfig: {
                 singleLineBreaks: false,
                 codeSyntaxHighlighting: true, 
-                hljs: hljs, 
             },
             toolbar: [
                 'bold', 'italic', 'heading', '|',
                 'code', 'quote', 'unordered-list', 'ordered-list', 'table', '|',
-                'link', 'image',
+                'link', 'image', '|',
+                'preview', 'side-by-side'
             ] as const
         };
     }, []);

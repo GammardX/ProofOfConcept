@@ -1,313 +1,156 @@
-:root {
-    /* --- 1. BASI --- */
-    --bg-white: #ffffff;
-    --bg-gray-light: #f3f4f6;
-    --text-main: #1f2937;
-    --text-muted: #6b7280;
-    --border-std: #e5e7eb;
-
-    /* --- 2. COLORE PRIMARIO --- */
-    --color-primary: #2563eb;
-    --bg-primary-fade: #eff6ff;
-    --bg-selection: #bfdbfe;
-
-    /* --- 3. SINTASSI MARKDOWN --- */
-    --syntax-purple: #7c3aed;
-    --syntax-green: #16a34a;
-    --syntax-orange: #ea580c;
-    --syntax-red: #dc2626;
-    
-    /* --- 4. SINTASSI LINGUAGGI (Colori condivisi Editor & Preview) --- */
-    --code-keyword: #569cd6;    /* Blu chiaro (VS Code Dark style per sfondo scuro) */
-    --code-atom: #569cd6;       /* Booleani */
-    --code-number: #b5cea8;     /* Numeri (Verde chiaro) */
-    --code-def: #dcdcaa;        /* Funzioni (Giallo) */
-    --code-string: #ce9178;     /* Stringhe (Arancio/Rosso) */
-    --code-comment: #6a9955;    /* Commenti (Verde scuro) */
-    --code-text: #d4d4d4;       /* Testo base codice */
-
-    /* --- 5. BLOCCHI CODICE PREVIEW --- */
-    --bg-dark: #1e1e1e;         /* Sfondo VS Code */
+.EasyMDEContainer {
+    position: absolute !important;
+    top: 0; bottom: 0; left: 0; right: 0;
+    background: white;
+    display: grid !important; 
+    grid-template-rows: max-content 1fr; 
+    grid-template-columns: 1fr 1fr;
+    height: 100% !important;
 }
 
-/* =========================================
-   1. STILE BASE EDITOR (SINISTRA)
-   ========================================= */
+.editor-toolbar {
+    grid-row: 1;
+    grid-column: 1 / -1; 
+    border-radius: 0 !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+}
 
-/* Contenitore principale dell'editor (dove scrivi) */
 .CodeMirror {
-    font-family: 'Fira Code', 'Consolas', monospace !important;
-    font-size: 14px !important;
-    line-height: 1.6;
-    color: var(--text-main);           
-    background-color: var(--bg-white); 
+    grid-row: 2;
+    height: 100% !important;
+    border: none !important;
+    border-radius: 0 !important;
+    grid-column: 1 / -1; 
 }
 
-/* Padding interno del foglio di scrittura */
-.CodeMirror-lines { 
-    padding: 30px !important; 
+.EasyMDEContainer.sided--no-fullscreen .CodeMirror {
+    grid-column: 1 / 2 !important; 
+    width: 100% !important; 
 }
 
-/* Cursore lampeggiante */
-.CodeMirror-cursor { 
-    border-left: 2px solid var(--text-main) !important; 
+.CodeMirror-scroll {
+    min-height: 0 !important;
+    padding-bottom: 2rem;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
 }
 
-/* Testo selezionato con il mouse */
-.CodeMirror-selected { 
-    background-color: var(--bg-selection) !important; 
-}
-
-/* Evidenziazione della riga corrente */
-.CodeMirror-activeline-background { 
-    background: var(--bg-primary-fade) !important; 
-}
-
-/* --- SINTASSI EDITOR (CodeMirror) --- */
-
-/* Titoli Generici (il colore degli hashtag #) */
-.cm-header { 
-    color: var(--color-primary); 
-    font-weight: bold; 
-}
-
-/* Titolo H1 (#) - Grandezza */
-.cm-header-1 { 
-    font-size: 1.8rem; 
-    line-height: 2rem; 
-}
-
-/* Titolo H2 (##) - Grandezza */
-.cm-header-2 { 
-    font-size: 1.5rem; 
-}
-
-/* Titolo H3 (###) - Grandezza */
-.cm-header-3 { 
-    font-size: 1.2rem; 
-}
-
-/* Grassetto (**testo**) */
-.cm-strong { 
-    color: var(--syntax-purple); 
-    font-weight: 700 !important; 
-}
-
-/* Corsivo (*testo*) */
-.cm-em { 
-    color: var(--syntax-green); 
-    font-style: italic; 
-}
-
-/* Citazioni (> testo) */
-.cm-quote { 
-    color: var(--text-muted); 
-    font-style: italic; 
-    background: var(--bg-gray-light); 
-}
-
-/* Liste, Numeri elenco e Separatori Tabelle */
-.cm-variable-2, 
-.cm-variable-3, 
-.cm-table-sep, 
-.cm-formatting-list { 
-    color: var(--syntax-orange) !important; 
-    font-weight: bold; 
-}
-
-/* Link Testuale [Testo] */
-.cm-link { 
-    color: var(--color-primary); 
-    text-decoration: none; 
-    font-weight: 600; 
-}
-
-/* Link URL (http://...) */
-.cm-url, 
-.cm-string { 
-    color: var(--text-muted); 
-    text-decoration: underline; 
-}
-
-/* Codice in linea (`code`) */
-.cm-comment { 
-    color: var(--syntax-red) !important; 
-    background-color: rgba(0,0,0,0.05); 
-    border-radius: 3px; 
-    font-family: monospace; 
-    padding: 0 4px; 
-}
-
-/* Caratteri di formattazione (*, #, >) - Resi grigi */
-.cm-formatting { 
-    color: #d1d5db !important; 
-    font-weight: normal !important; 
-}
-
-/* Eccezione: Il simbolo # dei titoli rimane blu */
-.cm-formatting-header { 
-    color: var(--color-primary) !important; 
-}
-
-/* --- REGOLE SPECIALI EDITOR PER LINGUAGGI (Se importati) --- */
-
-/* Parole chiave (function, return, if) */
-.cm-keyword { 
-    color: #0000ff !important; 
-    font-weight: bold; 
-}
-
-/* Definizioni (nomi funzioni/variabili) */
-.cm-def { 
-    color: #795e26 !important; 
-}
-
-/* Stringhe di codice */
-.cm-string { 
-    color: #a31515 !important; 
-}
-
-/* Numeri nel codice */
-.cm-number { 
-    color: #098658 !important; 
-}
-
-/* =========================================
-   2. STILE PREVIEW (DESTRA)
-   ========================================= */
-
-/* Contenitore principale Anteprima */
+/* --- GESTIONE PREVIEW SIDE-BY-SIDE --- */
 .editor-preview-side {
-    font-family: 'Inter', sans-serif !important;
-    font-size: 16px !important;
-    line-height: 1.7;
-    color: var(--text-main);
-    background-color: #fafafa;
-    padding: 30px !important;
+    grid-row: 2 / -1 !important;
+    grid-column: 2 / 3 !important; 
+    position: static !important; 
+    height: 100% !important;
+    width: 100% !important;
+    margin: 0 !important; 
+    box-sizing: border-box !important; 
+    overflow-y: auto !important;
+    border: none !important;
+    border-left: 1px solid var(--border-color) !important;
+    display: none !important; 
 }
 
-/* Titolo H1 Anteprima */
-.editor-preview-side h1 { 
-    font-size: 2.5rem; 
-    font-weight: 800; 
-    border-bottom: 2px solid var(--border-std); 
-    padding-bottom: 0.5rem; 
-    margin: 1rem 0 1.5rem 0; 
+.editor-preview-side.editor-preview-active-side {
+    display: block !important;
 }
 
-/* Titolo H2 Anteprima */
-.editor-preview-side h2 { 
-    font-size: 2rem; 
-    font-weight: 700; 
-    margin: 2rem 0 1rem 0; 
+.editor-preview-active {
+    display: block;
 }
 
-/* Titolo H3 Anteprima */
-.editor-preview-side h3 { 
-    font-size: 1.5rem; 
-    font-weight: 600; 
+/* --- STILI TIPOGRAFICI CONTENUTO --- */
+.CodeMirror, .editor-preview-side, .editor-preview {
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #1f2937;
+    background-color: #ffffff;
 }
 
-/* Citazioni Anteprima */
-.editor-preview-side blockquote { 
-    border-left: 4px solid var(--color-primary); 
-    background-color: var(--bg-primary-fade); 
-    color: var(--color-primary); 
-    padding: 1rem; 
-    margin: 1.5rem 0; 
+.CodeMirror-lines { padding: 20px !important; }
+.editor-preview-side { padding: 20px !important; }
+
+.cm-header-1, .editor-preview h1, .editor-preview-side h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 0.3rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    color: #111827;
+    line-height: 1.2;
 }
 
-/* Immagini Anteprima */
-.editor-preview-side img { 
-    max-width: 100%; 
-    border-radius: 8px; 
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); 
+.cm-header-2, .editor-preview h2, .editor-preview-side h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 0.2rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.8rem;
+    color: #1f2937;
 }
 
-/* Tabelle Anteprima */
-.editor-preview-side table { 
-    width: 100%; 
-    border-collapse: collapse; 
-    margin: 1.5rem 0; 
-}
-
-/* Celle e Intestazioni Tabelle */
-.editor-preview-side th, 
-.editor-preview-side td { 
-    border: 1px solid var(--border-std); 
-    padding: 0.75rem; 
-    text-align: left; 
-}
-
-/* Sfondo Intestazione Tabella */
-.editor-preview-side th { 
-    background-color: var(--bg-gray-light); 
-    font-weight: 600; 
-}
-
-
-/* =========================================
-   6. HIGHLIGHT.JS (PREVIEW) - COLORAZIONE CODICE
-   (Gestisce i blocchi ```js ``` a destra)
-   ========================================= */
-
-/* Contenitore del Blocco Codice (Sfondo Scuro) */
-.editor-preview-side pre {
-    background: var(--bg-dark);
-    color: var(--code-text);
+/* --- BLOCCHI DI CODICE --- */
+.editor-preview pre, .editor-preview-side pre {
+    background: #f3f4f6;
     padding: 1rem;
-    border-radius: 8px;
+    border-radius: 6px;
     overflow-x: auto;
+    border: 1px solid #e5e7eb;
 }
 
-/* Reset del font dentro il blocco */
-.editor-preview-side pre code {
+.editor-preview code, .editor-preview-side code {
+    background: #f3f4f6;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.875em;
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    color: #dc2626; 
+}
+
+.editor-preview pre code, .editor-preview-side pre code {
     background: transparent;
     padding: 0;
     color: inherit;
-    font-family: 'Fira Code', monospace;
+    border: none;
 }
 
-/* Keywords (SELECT, FROM, function, if) */
-.hljs-keyword, 
-.hljs-selector-tag, 
-.hljs-title, 
-.hljs-section, 
-.hljs-doctag, 
-.hljs-name, 
-.hljs-strong {
-    color: var(--code-keyword);
-    font-weight: bold;
-}
-
-/* Stringhe ("testo", 'ciao') */
-.hljs-string, 
-.hljs-title.class_, 
-.hljs-type, 
-.hljs-tag, 
-.hljs-attr {
-    color: var(--code-string);
-}
-
-/* Commenti (// commento) */
-.hljs-comment, 
-.hljs-quote {
-    color: var(--code-comment);
+/* --- CITAZIONI --- */
+.cm-quote, .editor-preview blockquote, .editor-preview-side blockquote {
+    border-left: 4px solid #d1d5db;
+    padding-left: 1rem;
+    margin-left: 0;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    color: #4b5563;
     font-style: italic;
 }
 
-/* Numeri e Costanti (123, true, null) */
-.hljs-number, 
-.hljs-literal, 
-.hljs-variable, 
-.hljs-template-variable, 
-.hljs-tag .hljs-attr {
-    color: var(--code-number);
+/* --- IMMAGINI --- */
+.editor-preview img, .editor-preview-side img {
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-/* Nomi di Funzioni e Parametri */
-.hljs-function, 
-.hljs-title, 
-.hljs-params {
-    color: var(--code-def);
+/* --- TABELLE --- */
+.editor-preview table, .editor-preview-side table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+}
+
+.editor-preview th, .editor-preview td,
+.editor-preview-side th, .editor-preview-side td {
+    border: 1px solid #e5e7eb;
+    padding: 0.75rem;
+    text-align: left;
+}
+
+.editor-preview th, .editor-preview-side th {
+    background-color: #f9fafb;
+    font-weight: 600;
 }

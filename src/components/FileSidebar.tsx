@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { Note } from '../App';
+import '../style/filesidebar.css';
 
 interface FileSidebarProps {
     notes: Note[];

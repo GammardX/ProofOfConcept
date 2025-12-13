@@ -3,6 +3,7 @@ import {
 	summarizeText,
 	translateToEnglish
 } from '../services/llmService.ts';
+import '../style/topbar.css';
 
 
 interface TopBarProps {
