@@ -1,156 +1,184 @@
 .EasyMDEContainer {
-    position: absolute !important;
-    top: 0; bottom: 0; left: 0; right: 0;
-    background: white;
-    display: grid !important; 
-    grid-template-rows: max-content 1fr; 
-    grid-template-columns: 1fr 1fr;
-    height: 100% !important;
+	position: absolute !important;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: white;
+	display: grid !important;
+	grid-template-rows: max-content 1fr;
+	grid-template-columns: 1fr 1fr;
+	height: 100% !important;
 }
 
 .editor-toolbar {
-    grid-row: 1;
-    grid-column: 1 / -1; 
-    border-radius: 0 !important;
-    border-top: none !important;
-    border-left: none !important;
-    border-right: none !important;
+	grid-row: 1;
+	grid-column: 1 / -1;
+	border-radius: 0 !important;
+	border-top: none !important;
+	border-left: none !important;
+	border-right: none !important;
 }
 
 .CodeMirror {
-    grid-row: 2;
-    height: 100% !important;
-    border: none !important;
-    border-radius: 0 !important;
-    grid-column: 1 / -1; 
+	grid-row: 2;
+	height: 100% !important;
+	border: none !important;
+	border-radius: 0 !important;
+	grid-column: 1 / -1;
+	padding: 20px !important;
 }
 
 .EasyMDEContainer.sided--no-fullscreen .CodeMirror {
-    grid-column: 1 / 2 !important; 
-    width: 100% !important; 
+	grid-column: 1 / 2 !important;
+	width: 100% !important;
 }
 
 .CodeMirror-scroll {
-    min-height: 0 !important;
-    padding-bottom: 2rem;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
+	min-height: 0 !important;
+	padding-bottom: 2rem;
+	overflow-y: auto !important;
+	overflow-x: hidden !important;
 }
 
 /* --- GESTIONE PREVIEW SIDE-BY-SIDE --- */
 .editor-preview-side {
-    grid-row: 2 / -1 !important;
-    grid-column: 2 / 3 !important; 
-    position: static !important; 
-    height: 100% !important;
-    width: 100% !important;
-    margin: 0 !important; 
-    box-sizing: border-box !important; 
-    overflow-y: auto !important;
-    border: none !important;
-    border-left: 1px solid var(--border-color) !important;
-    display: none !important; 
+	grid-row: 2 / -1 !important;
+	grid-column: 2 / 3 !important;
+	position: static !important;
+	height: 100% !important;
+	width: 100% !important;
+	margin: 0 !important;
+	box-sizing: border-box !important;
+	overflow-y: auto !important;
+	border: none !important;
+	border-left: 1px solid var(--border-color) !important;
+	display: none !important;
 }
 
 .editor-preview-side.editor-preview-active-side {
-    display: block !important;
+	display: block !important;
 }
 
 .editor-preview-active {
-    display: block;
+	display: block;
 }
 
 /* --- STILI TIPOGRAFICI CONTENUTO --- */
-.CodeMirror, .editor-preview-side, .editor-preview {
-    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    font-size: 16px;
-    line-height: 1.6;
-    color: #1f2937;
-    background-color: #ffffff;
+.CodeMirror,
+.editor-preview-side,
+.editor-preview {
+	font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
+		sans-serif;
+	font-size: 16px;
+	line-height: 1.6;
+	color: #1f2937;
+	background-color: #ffffff;
+}
+/* 
+.CodeMirror-lines {
+	padding: 20px !important;
+} */
+/* .editor-preview-side {
+	padding: 20px !important;
+} */
+.editor-preview {
+	padding: 20px !important;
 }
 
-.CodeMirror-lines { padding: 20px !important; }
-.editor-preview-side { padding: 20px !important; }
-
-.cm-header-1, .editor-preview h1, .editor-preview-side h1 {
-    font-size: 2.2rem;
-    font-weight: 700;
-    border-bottom: 1px solid #e5e7eb;
-    padding-bottom: 0.3rem;
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-    color: #111827;
-    line-height: 1.2;
+.cm-header-1,
+.editor-preview h1,
+.editor-preview-side h1 {
+	font-size: 2.2rem;
+	font-weight: 700;
+	border-bottom: 1px solid #e5e7eb;
+	padding-bottom: 0.3rem;
+	margin-top: 1.5rem;
+	margin-bottom: 1rem;
+	color: #111827;
+	line-height: 1.2;
 }
 
-.cm-header-2, .editor-preview h2, .editor-preview-side h2 {
-    font-size: 1.8rem;
-    font-weight: 600;
-    border-bottom: 1px solid #e5e7eb;
-    padding-bottom: 0.2rem;
-    margin-top: 1.5rem;
-    margin-bottom: 0.8rem;
-    color: #1f2937;
+.cm-header-2,
+.editor-preview h2,
+.editor-preview-side h2 {
+	font-size: 1.8rem;
+	font-weight: 600;
+	border-bottom: 1px solid #e5e7eb;
+	padding-bottom: 0.2rem;
+	margin-top: 1.5rem;
+	margin-bottom: 0.8rem;
+	color: #1f2937;
 }
 
 /* --- BLOCCHI DI CODICE --- */
-.editor-preview pre, .editor-preview-side pre {
-    background: #f3f4f6;
-    padding: 1rem;
-    border-radius: 6px;
-    overflow-x: auto;
-    border: 1px solid #e5e7eb;
+.editor-preview pre,
+.editor-preview-side pre {
+	background: #f3f4f6;
+	padding: 1rem;
+	border-radius: 6px;
+	overflow-x: auto;
+	border: 1px solid #e5e7eb;
 }
 
-.editor-preview code, .editor-preview-side code {
-    background: #f3f4f6;
-    padding: 0.2rem 0.4rem;
-    border-radius: 4px;
-    font-size: 0.875em;
-    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
-    color: #dc2626; 
+.editor-preview code,
+.editor-preview-side code {
+	background: #f3f4f6;
+	padding: 0.2rem 0.4rem;
+	border-radius: 4px;
+	font-size: 0.875em;
+	font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+	color: #dc2626;
 }
 
-.editor-preview pre code, .editor-preview-side pre code {
-    background: transparent;
-    padding: 0;
-    color: inherit;
-    border: none;
+.editor-preview pre code,
+.editor-preview-side pre code {
+	background: transparent;
+	padding: 0;
+	color: inherit;
+	border: none;
 }
 
 /* --- CITAZIONI --- */
-.cm-quote, .editor-preview blockquote, .editor-preview-side blockquote {
-    border-left: 4px solid #d1d5db;
-    padding-left: 1rem;
-    margin-left: 0;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    color: #4b5563;
-    font-style: italic;
+.cm-quote,
+.editor-preview blockquote,
+.editor-preview-side blockquote {
+	border-left: 4px solid #d1d5db;
+	padding-left: 1rem;
+	margin-left: 0;
+	margin-top: 1rem;
+	margin-bottom: 1rem;
+	color: #4b5563;
+	font-style: italic;
 }
 
 /* --- IMMAGINI --- */
-.editor-preview img, .editor-preview-side img {
-    max-width: 100%;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+.editor-preview img,
+.editor-preview-side img {
+	max-width: 100%;
+	border-radius: 8px;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 /* --- TABELLE --- */
-.editor-preview table, .editor-preview-side table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1.5rem 0;
+.editor-preview table,
+.editor-preview-side table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 1.5rem 0;
 }
 
-.editor-preview th, .editor-preview td,
-.editor-preview-side th, .editor-preview-side td {
-    border: 1px solid #e5e7eb;
-    padding: 0.75rem;
-    text-align: left;
+.editor-preview th,
+.editor-preview td,
+.editor-preview-side th,
+.editor-preview-side td {
+	border: 1px solid #e5e7eb;
+	padding: 0.75rem;
+	text-align: left;
 }
 
-.editor-preview th, .editor-preview-side th {
-    background-color: #f9fafb;
-    font-weight: 600;
+.editor-preview th,
+.editor-preview-side th {
+	background-color: #f9fafb;
+	font-weight: 600;
 }
