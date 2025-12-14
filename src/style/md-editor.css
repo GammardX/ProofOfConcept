@@ -71,7 +71,7 @@
 	font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
 		sans-serif;
 	font-size: 16px;
-	line-height: 1.6;
+	line-height: 1.5;
 	color: #1f2937;
 	background-color: #ffffff;
 }
@@ -84,6 +84,21 @@
 } */
 .editor-preview {
 	padding: 20px !important;
+	h1,
+	h2 {
+		border-bottom: 1px solid #e5e7eb;
+	}
+	h3,
+	h4,
+	h5,
+	h6 {
+		margin-bottom: 0.6rem;
+	}
+	ul,
+	ol {
+		margin-block-start: 0.5rem;
+		margin-block-end: 0.5rem;
+	}
 }
 
 .cm-header-1,
@@ -91,7 +106,6 @@
 .editor-preview-side h1 {
 	font-size: 2.2rem;
 	font-weight: 700;
-	border-bottom: 1px solid #e5e7eb;
 	padding-bottom: 0.3rem;
 	margin-top: 1.5rem;
 	margin-bottom: 1rem;
@@ -104,7 +118,6 @@
 .editor-preview-side h2 {
 	font-size: 1.8rem;
 	font-weight: 600;
-	border-bottom: 1px solid #e5e7eb;
 	padding-bottom: 0.2rem;
 	margin-top: 1.5rem;
 	margin-bottom: 0.8rem;
