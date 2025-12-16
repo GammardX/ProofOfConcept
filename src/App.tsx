@@ -80,12 +80,20 @@ export default function App() {
 	// --- GESTIONE LLM DIALOG ---
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [dialogText, setDialogText] = useState('');
+	const [dialogLoading, setDialogLoading] = useState(false);
 
 	const llmBridge = {
 		currentText: () => activeNote?.content || '',
-		openDialog: (text: string) => {
-			setDialogText(text);
+
+		openLoadingDialog: () => {
+			setDialogText('');
+			setDialogLoading(true);
 			setDialogOpen(true);
+		},
+
+		setDialogResult: (text: string) => {
+			setDialogLoading(false);
+			setDialogText(text);
 		}
 	};
 
@@ -97,7 +105,7 @@ export default function App() {
 		(mouseMoveEvent: MouseEvent) => {
 			if (isResizing) {
 				const newWidth = mouseMoveEvent.clientX;
-				if (newWidth > 200 && newWidth < 600) {
+				if (newWidth > 150 && newWidth < 600) {
 					setSidebarWidth(newWidth);
 				}
 			}
@@ -155,6 +163,7 @@ export default function App() {
 			<DialogLLM
 				text={dialogText}
 				open={dialogOpen}
+				loading={dialogLoading}
 				onClose={() => setDialogOpen(false)}
 			/>
 		</div>
