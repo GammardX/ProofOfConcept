@@ -83,21 +83,25 @@ export async function translate(text: string, targetLanguage: string) {
 	);
 }
 
-export async function applySixHats(text: string) {
- 	return askLLM(
-		`Analizza il testo fornito dal punto di vista dell'obiettività.\n
-		Individua eventuali elementi di soggettività, bias, linguaggio valutativo o assunzioni non dichiarate.\n
-		Distingui tra affermazioni fattuali e affermazioni valutative.\n
+export async function applySixHats(text: string, hat: string) {
+	switch (hat){
+		case 'Bianco':
+			return askLLM(
+				`Analizza il testo fornito dal punto di vista dell'obiettività.\n
+				Individua eventuali elementi di soggettività, bias, linguaggio valutativo o assunzioni non dichiarate.\n
+				Distingui tra affermazioni fattuali e affermazioni valutative.\n
 
-		Basa l'analisi esclusivamente sul testo fornito.\n
-		Non esprimere opinioni personali e non aggiungere informazioni esterne.\n
-		Restituisci solo l'analisi richiesta.\n
-		Non inserire introduzioni, titoli, prefazioni o frasi di apertura.\n
-		L'output deve contenere esclusivamente i punti principali.\n
-		Non aggiungere commenti o spiegazioni.\n
-		Non invitare a ulteriori interazioni.\n
+				Basa l'analisi esclusivamente sul testo fornito.\n
+				Non esprimere opinioni personali e non aggiungere informazioni esterne.\n
+				Restituisci solo l'analisi richiesta.\n
+				Non inserire introduzioni, titoli, prefazioni o frasi di apertura.\n
+				Non aggiungere commenti o spiegazioni.\n
+				Non invitare a ulteriori interazioni.\n
 
-		Testo:\n
-		${text}`
-	);
+				Testo:\n
+				${text}`
+			);
+		default:
+			return "marameo";
+	}
 }

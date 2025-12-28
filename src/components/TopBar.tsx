@@ -1,10 +1,11 @@
 import {
 	improveWriting,
 	summarizeText,
-	translate
+	translate,
+	applySixHats
 } from '../services/llmService.ts';
 import '../style/topbar.css';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Menu, MenuItem} from '@mui/material';
 import { useState } from 'react';
 interface TopBarProps {
 	title: string;
@@ -16,6 +17,11 @@ interface TopBarProps {
 }
 
 export default function TopBar({ title, llm }: TopBarProps) {
+	/*
+		------------------------------------
+		SUMMARY
+		------------------------------------
+	*/
 	const handleSummarize = async () => {
 		llm.openLoadingDialog();
 
@@ -27,6 +33,11 @@ export default function TopBar({ title, llm }: TopBarProps) {
 		}
 	};
 
+	/*
+		------------------------------------
+		ENHANCEMENT
+		------------------------------------
+	*/
 	const [openCriterion, setOpenCriterion] = useState(false);
 	const [criterion, setCriterion] = useState('');
 
@@ -50,6 +61,11 @@ export default function TopBar({ title, llm }: TopBarProps) {
 		}
 	};
 
+	/*
+		------------------------------------
+		TRANSLATION
+		------------------------------------
+	*/
 	const [openTargetLanguage, setOpenTargetLanguage] = useState(false);
 	const [targetLanguage, setTargetLanguage] = useState('');
 
@@ -70,6 +86,31 @@ export default function TopBar({ title, llm }: TopBarProps) {
 		}
 	};
 	
+	/*
+		------------------------------------
+		SIX HATS
+		------------------------------------
+	*/
+	const sixHats = [
+		{ label: 'Bianco', color: '#ffffff' },  //fatti, informazioni
+		{ label: 'Rosso', color: '#ff0000' },   //emozioni, sentimenti
+		{ label: 'Nero', color: '#000000' },    //critica, problemi
+		{ label: 'Giallo', color: '#ffeb3b' },  //benefici, ottimismo
+		{ label: 'Verde', color: '#4caf50' },   //creatività, alternative
+		{ label: 'Blu', color: '#2196f3' },     //controllo, sintesi, gestione processo
+		];
+
+	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+	const openMenu = Boolean(anchorEl);
+
+	const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+	setAnchorEl(event.currentTarget);
+	};
+
+	const handleMenuClose = () => {
+	setAnchorEl(null);
+	};
+
 	return (
 		<>
 		<header className='top-bar'>
@@ -80,7 +121,37 @@ export default function TopBar({ title, llm }: TopBarProps) {
 				<button onClick={handleSummarize}>📝 Riassumi</button>
 				<button onClick={handleImproveClick}>✨ Migliora</button>
 				<button onClick={handleTranslate}>🌐 Traduci</button>
+				<button onClick={(e) => setAnchorEl(e.currentTarget as HTMLElement)}>🧢 Analisi</button>
 			</div>
+			<Menu anchorEl={anchorEl} open={openMenu} onClose={handleMenuClose}>
+				{sixHats.map((hat) => (
+					<MenuItem
+					key={hat.label}
+					onClick={async () => {
+						handleMenuClose();
+						llm.openLoadingDialog();
+						try {
+							const result = await applySixHats(llm.currentText(), hat.label);
+							llm.setDialogResult(result);
+						} catch {
+							llm.setDialogResult('Errore durante la generazione.');
+						}
+					}}>
+					<span
+						style={{
+						display: 'inline-block',
+						width: 12,
+						height: 12,
+						borderRadius: '50%',
+						backgroundColor: hat.color,
+						marginRight: 8
+						}}
+					></span>
+					{hat.label}
+					</MenuItem>
+				))}
+				</Menu>
+
 		</header>
 		<Dialog open={openCriterion} onClose={() => setOpenCriterion(false)}>
 				<DialogTitle>Decidi il criterio di riscrittura</DialogTitle>
