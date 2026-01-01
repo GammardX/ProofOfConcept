@@ -5,8 +5,20 @@ import {
 	applySixHats
 } from '../services/llmService.ts';
 import '../style/topbar.css';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Menu, MenuItem} from '@mui/material';
+import { 
+    Dialog, 
+    DialogTitle, 
+    DialogContent, 
+    DialogActions, 
+    Button, 
+    TextField, 
+    Menu, 
+    MenuItem,
+    Slider,
+    Typography 
+} from '@mui/material';
 import { useState } from 'react';
+
 interface TopBarProps {
 	title: string;
 	llm: {
@@ -22,16 +34,24 @@ export default function TopBar({ title, llm }: TopBarProps) {
 		SUMMARY
 		------------------------------------
 	*/
-	const handleSummarize = async () => {
-		llm.openLoadingDialog();
+    const [openSummary, setOpenSummary] = useState(false);
+    const [summaryPercentage, setSummaryPercentage] = useState<number>(50);
 
-		try {
-			const result = await summarizeText(llm.currentText());
+	const handleSummarizeClick = () => {
+        setOpenSummary(true);
+	};
+
+    const handleConfirmSummarize = async () => {
+        setOpenSummary(false);
+        llm.openLoadingDialog();
+
+        try {
+			const result = await summarizeText(llm.currentText(), summaryPercentage);
 			llm.setDialogResult(result);
 		} catch {
 			llm.setDialogResult('Errore durante la generazione.');
 		}
-	};
+    };
 
 	/*
 		------------------------------------
@@ -104,11 +124,11 @@ export default function TopBar({ title, llm }: TopBarProps) {
 	const openMenu = Boolean(anchorEl);
 
 	const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-	setAnchorEl(event.currentTarget);
+	    setAnchorEl(event.currentTarget);
 	};
 
 	const handleMenuClose = () => {
-	setAnchorEl(null);
+	    setAnchorEl(null);
 	};
 
 	return (
@@ -118,7 +138,7 @@ export default function TopBar({ title, llm }: TopBarProps) {
 				<h2>{title}</h2>
 			</div>
 			<div className='actions'>
-				<button onClick={handleSummarize}>📝 Riassumi</button>
+				<button onClick={handleSummarizeClick}>📝 Riassumi</button>
 				<button onClick={handleImproveClick}>✨ Migliora</button>
 				<button onClick={handleTranslate}>🌐 Traduci</button>
 				<button onClick={(e) => setAnchorEl(e.currentTarget as HTMLElement)}>🧢 Analisi</button>
@@ -153,7 +173,41 @@ export default function TopBar({ title, llm }: TopBarProps) {
 				</Menu>
 
 		</header>
-		<Dialog open={openCriterion} onClose={() => setOpenCriterion(false)}>
+
+            {/* --- DIALOG RIASSUMI --- */}
+            <Dialog open={openSummary} onClose={() => setOpenSummary(false)}>
+				<DialogTitle>Intensità del riassunto</DialogTitle>
+
+				<DialogContent sx={{ minWidth: 300, mt: 1 }}>
+                    <Typography gutterBottom>
+                        Percentuale di riduzione: {summaryPercentage}%
+                    </Typography>
+                    <Slider
+                        value={summaryPercentage}
+                        onChange={(_, newValue) => setSummaryPercentage(newValue as number)}
+                        aria-labelledby="input-slider"
+                        step={10}
+                        min={10}
+                        max={90}
+                        valueLabelDisplay="auto"
+                    />
+                    <Typography variant="caption" color="text.secondary">
+                        (10% = riassunto leggero, 90% = molto sintetico)
+                    </Typography>
+				</DialogContent>
+
+				<DialogActions>
+					<Button onClick={() => setOpenSummary(false)}>
+						Annulla
+					</Button>
+					<Button onClick={handleConfirmSummarize}>
+						Applica
+					</Button>
+				</DialogActions>
+			</Dialog>
+
+            {/* --- DIALOG MIGLIORA --- */}
+		    <Dialog open={openCriterion} onClose={() => setOpenCriterion(false)}>
 				<DialogTitle>Decidi il criterio di riscrittura</DialogTitle>
 
 				<DialogContent>
@@ -181,6 +235,7 @@ export default function TopBar({ title, llm }: TopBarProps) {
 				</DialogActions>
 			</Dialog>
 
+            {/* --- DIALOG TRADUCI --- */}
 			<Dialog open={openTargetLanguage} onClose={() => setOpenTargetLanguage(false)}>
 				<DialogTitle>Decidi la lingua di destinazione</DialogTitle>
 

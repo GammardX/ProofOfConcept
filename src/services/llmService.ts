@@ -26,9 +26,9 @@ export async function askLLM(prompt: string): Promise<string> {
 	return data.choices[0].message.content;
 }
 
-export async function summarizeText(text: string) {
+export async function summarizeText(text: string, percentage: number) {
 	return askLLM( 
-		`Riduci la lunghezza del testo fornito del 70-80%, mantenendo:\n
+		`Riduci la lunghezza del testo fornito di circa il ${percentage}%, mantenendo:\n
 		- lo stesso tono e stile dell'originale\n
 		- tutte le informazioni essenziali\n
 		- la struttura del testo, se presente\n
