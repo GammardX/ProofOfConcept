@@ -2,7 +2,8 @@ import {
 	improveWriting,
 	summarizeText,
 	translate,
-	applySixHats
+	applySixHats,
+	type LLMResponse
 } from '../services/llmService.ts';
 import '../style/topbar.css';
 import { 
@@ -29,6 +30,22 @@ interface TopBarProps {
 }
 
 export default function TopBar({ title, llm }: TopBarProps) {
+    
+    // Helper per gestire la logica dei controlli JSON
+    const handleLLMResponse = (result: LLMResponse) => {
+        const { outcome, data } = result;
+
+        if (outcome.status === 'success') {
+            llm.setDialogResult(data.rewritten_text || 'Nessun testo generato.');
+        } else if (outcome.status === 'refusal') {
+            llm.setDialogResult(`Richiesta rifiutata. Motivo: ${outcome.code} (${outcome.violation_category || 'Generico'}).`);
+        } else if (outcome.status === 'INVALID_INPUT') {
+            llm.setDialogResult(`Input non valido. Codice: ${outcome.code}`);
+        } else {
+            llm.setDialogResult('Errore sconosciuto nella risposta del server.');
+        }
+    };
+
 	/*
 		------------------------------------
 		SUMMARY
@@ -47,9 +64,9 @@ export default function TopBar({ title, llm }: TopBarProps) {
 
         try {
 			const result = await summarizeText(llm.currentText(), summaryPercentage);
-			llm.setDialogResult(result);
+			handleLLMResponse(result);
 		} catch {
-			llm.setDialogResult('Errore durante la generazione.');
+			llm.setDialogResult('Errore di connessione o parsing durante la generazione.');
 		}
     };
 
@@ -71,13 +88,10 @@ export default function TopBar({ title, llm }: TopBarProps) {
 		llm.openLoadingDialog();
 
 		try {
-			const result = await improveWriting(
-				llm.currentText(),
-				criterion
-			);
-			llm.setDialogResult(result);
+			const result = await improveWriting(llm.currentText(), criterion);
+			handleLLMResponse(result);
 		} catch {
-			llm.setDialogResult('Errore durante la generazione.');
+			llm.setDialogResult('Errore di connessione o parsing durante la generazione.');
 		}
 	};
 
@@ -100,9 +114,9 @@ export default function TopBar({ title, llm }: TopBarProps) {
 
 		try {
 			const result = await translate(llm.currentText(), targetLanguage);
-			llm.setDialogResult(result);
+			handleLLMResponse(result);
 		} catch {
-			llm.setDialogResult('Errore durante la generazione.');
+			llm.setDialogResult('Errore di connessione o parsing durante la generazione.');
 		}
 	};
 	
@@ -152,9 +166,9 @@ export default function TopBar({ title, llm }: TopBarProps) {
 						llm.openLoadingDialog();
 						try {
 							const result = await applySixHats(llm.currentText(), hat.label);
-							llm.setDialogResult(result);
+							handleLLMResponse(result);
 						} catch {
-							llm.setDialogResult('Errore durante la generazione.');
+							llm.setDialogResult('Errore di connessione o parsing durante la generazione.');
 						}
 					}}>
 					<span

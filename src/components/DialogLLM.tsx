@@ -20,7 +20,7 @@ export default function DialogLLM({
 	onClose
 }: DialogLLMProps) {
 	return (
-		<Dialog open={open} onClose={onClose}>
+		<Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
 			<DialogTitle>Risultato LLM</DialogTitle>
 
 			<DialogContent dividers>
@@ -32,7 +32,10 @@ export default function DialogLLM({
 						</DialogContentText>
 					</div>
 				) : (
-					<DialogContentText>{text || 'Nessun risultato'}</DialogContentText>
+                    // white-space: pre-wrap è fondamentale per mantenere la formattazione e permettere il copia-incolla corretto
+					<DialogContentText style={{ whiteSpace: 'pre-wrap', color: 'text.primary' }}>
+                        {text || 'Nessun risultato'}
+                    </DialogContentText>
 				)}
 			</DialogContent>
 
