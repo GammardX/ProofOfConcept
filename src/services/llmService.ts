@@ -45,7 +45,7 @@ async function executeRequest(config: LLMConfig, prompt: string): Promise<string
     const controller = new AbortController();
 
     // Timeout di 10s: se il server non inizia a rispondere entro questo tempo, abortiamo.
-    const timeToFirstTokenLimit = 10000; 
+    const timeToFirstTokenLimit = 60000; 
     const timeoutId = setTimeout(() => controller.abort(), timeToFirstTokenLimit);
 
     try {
