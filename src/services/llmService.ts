@@ -1,9 +1,26 @@
-const API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
-const DEFAULT_API_URL = 'http://padova.zucchetti.it:14000/v1/chat/completions';
-const DEFAULT_MODEL = 'gpt-oss:20b';
-const API_URL = import.meta.env.VITE_LLM_API_URL || DEFAULT_API_URL;
-const MODEL_NAME = import.meta.env.VITE_LLM_MODEL || DEFAULT_MODEL;
+/* CONFIGURAZIONI */
+interface LLMConfig {
+    name: string;
+    url: string;
+    model: string;
+    key: string;
+}
 
+const PRIMARY_CONFIG: LLMConfig = {
+    name: 'Primary (.env)',
+    url: import.meta.env.VITE_LLM_API_URL || '',
+    model: import.meta.env.VITE_LLM_MODEL || '',
+    key: import.meta.env.VITE_OPENAI_API_KEY || ''
+};
+
+const FALLBACK_CONFIG: LLMConfig = {
+    name: 'Fallback (Zucchetti)',
+    url: 'http://padova.zucchetti.it:14000/v1/chat/completions',
+    model: 'gpt-oss:20b',
+    key: import.meta.env.VITE_OPENAI_API_KEY || ''
+};
+
+const CONFIG_ATTEMPTS = [PRIMARY_CONFIG, FALLBACK_CONFIG];
 
 export interface LLMResponse {
     outcome: {
@@ -17,63 +34,166 @@ export interface LLMResponse {
     };
 }
 
-/* CORE API FUNCTION */
-export async function askLLM(prompt: string): Promise<LLMResponse> {
-    // Log di debug per vedere quale server stai usando
-    console.log(`[LLM Service] Connecting to: ${API_URL}`);
-    console.log(`[LLM Service] Using model: ${MODEL_NAME}`);
+/* Esegue la chiamata API gestendo lo streaming e il timeout sul primo byte */
+async function executeRequest(config: LLMConfig, prompt: string): Promise<string> {
+    if (!config.url || !config.model) {
+        throw new Error(`Configurazione incompleta per ${config.name}`);
+    }
 
-    const response = await fetch(
-        API_URL, 
-        {
+    console.log(`[LLM Service] Tentativo con: ${config.name}`);
+    
+    const controller = new AbortController();
+
+    // Timeout di 10s: se il server non inizia a rispondere entro questo tempo, abortiamo.
+    const timeToFirstTokenLimit = 10000; 
+    const timeoutId = setTimeout(() => controller.abort(), timeToFirstTokenLimit);
+
+    try {
+        const response = await fetch(config.url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${API_KEY}` 
+                Authorization: `Bearer ${config.key}`
             },
             body: JSON.stringify({
-                model: MODEL_NAME, 
+                model: config.model,
                 messages: [
-                    {
-                        role: 'user',
-                        content: prompt
-                    }
+                    { role: 'user', content: prompt }
                 ],
                 temperature: 0.1,
-                stream: false 
-            })
+                stream: true 
+            }),
+            signal: controller.signal
+        });
+
+        if (!response.ok) {
+            clearTimeout(timeoutId); 
+            throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
         }
-    );
 
-    const data = await response.json();
-    
-    // Controllo errori generici di rete o di Ollama
-    if (data.error) {
-        console.error("Errore API:", data.error);
-        return {
-            outcome: { status: 'INVALID_INPUT', code: 'API_ERROR' },
-            data: { rewritten_text: null }
-        };
-    }
+        if (!response.body) {
+            throw new Error('Nessun body nella risposta');
+        }
 
-    let content = data.choices[0].message.content;
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let fullContent = ''; 
+        let buffer = '';      
 
-    // Pulizia: Rimuove blocchi markdown se il modello li aggiunge
-    content = content.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        // --- FASE 1: ATTESA DEL PRIMO CHUNK (con Timeout attivo) ---
+        try {
+            const { value, done } = await reader.read();
+            
+            // Il server ha risposto: disattiviamo il timeout
+            clearTimeout(timeoutId);
+            console.log(`[LLM Service] ${config.name} ha iniziato a rispondere. Streaming in corso...`);
 
-    try {
-        return JSON.parse(content);
-    } catch (e) {
-        console.error("Errore parsing JSON", content);
-        return {
-            outcome: { status: 'INVALID_INPUT', code: 'JSON_PARSE_ERROR' },
-            data: { rewritten_text: null } // Fallback sicuro
-        };
+            if (value) {
+                const chunk = decoder.decode(value, { stream: true });
+                buffer += chunk;
+                
+                // Parsiamo i dati ricevuti
+                const parsed = parseStreamChunk(buffer);
+                fullContent += parsed.text;
+                buffer = parsed.remainingBuffer;
+            }
+            
+            if (done) return fullContent;
+
+        } catch (err: any) {
+            if (err.name === 'AbortError') {
+                throw new Error(`Timeout TTFT: Nessuna risposta iniziale entro ${timeToFirstTokenLimit}ms`);
+            }
+            throw err;
+        }
+
+        // --- FASE 2: LETTURA RESTANTE DELLO STREAM (Senza limiti di tempo) ---
+        while (true) {
+            const { value, done } = await reader.read();
+            
+            if (done) break;
+
+            const chunk = decoder.decode(value, { stream: true });
+            buffer += chunk;
+            
+            const parsed = parseStreamChunk(buffer);
+            fullContent += parsed.text;
+            buffer = parsed.remainingBuffer;
+        }
+
+        return fullContent;
+
+    } catch (error) {
+        clearTimeout(timeoutId);
+        throw error;
     }
 }
 
-/* SUMMARY SERVICE 
-*/
+/* Helper per estrarre il testo dai pacchetti "data: {...}" dello stream */
+function parseStreamChunk(buffer: string): { text: string, remainingBuffer: string } {
+    let accumulatedText = '';
+    const lines = buffer.split('\n');
+    
+    // L'ultima riga potrebbe essere incompleta, la teniamo nel buffer per il prossimo ciclo
+    const remainingBuffer = lines.pop() || ''; 
+
+    for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('data: ')) {
+            const jsonStr = trimmed.replace('data: ', '');
+            if (jsonStr === '[DONE]') continue;
+            
+            try {
+                const json = JSON.parse(jsonStr);
+                const content = json.choices?.[0]?.delta?.content;
+                if (content) {
+                    accumulatedText += content;
+                }
+            } catch (e) {
+                // Ignora linee JSON parziali o malformate
+            }
+        }
+    }
+
+    return { text: accumulatedText, remainingBuffer };
+}
+
+/* Funzione principale che gestisce il ciclo di tentativi (Primary -> Fallback) */
+export async function askLLM(prompt: string): Promise<LLMResponse> {
+    
+    for (const config of CONFIG_ATTEMPTS) {
+        try {
+            // Esegue la richiesta e ottiene tutto il testo
+            let content = await executeRequest(config, prompt);
+            
+            // Pulisce eventuali blocchi markdown json
+            content = content.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+
+            try {
+                return JSON.parse(content);
+            } catch (e) {
+                console.error(`[LLM Service] Errore parsing JSON finale da ${config.name}`, content);
+                return {
+                    outcome: { status: 'INVALID_INPUT', code: 'JSON_PARSE_ERROR' },
+                    data: { rewritten_text: null }
+                };
+            }
+
+        } catch (error) {
+            console.warn(`[LLM Service] Fallito tentativo con ${config.name}:`, error);
+            // Continua col prossimo config nel loop
+        }
+    }
+
+    console.error("[LLM Service] Tutti i tentativi sono falliti.");
+    return {
+        outcome: { status: 'INVALID_INPUT', code: 'API_CONNECTION_ERROR' },
+        data: { rewritten_text: null }
+    };
+}
+
+/* --- SERVIZI SPECIFICI --- */
+
 export async function summarizeText(text: string, percentage: number): Promise<LLMResponse> {
     return askLLM(
 `Sei un motore di elaborazione testi AI. Il tuo unico obiettivo è ridurre la lunghezza del testo fornito e restituire l'output ESCLUSIVAMENTE in formato JSON grezzo (senza blocchi markdown \`\`\`json).
@@ -120,8 +240,6 @@ Restituisci solo questo oggetto JSON:
     );
 }
 
-/* ENHANCEMENT SERVICE 
-*/
 export async function improveWriting(text: string, criterion: string): Promise<LLMResponse> {
     return askLLM(
 `Sei un motore di elaborazione testi AI. Il tuo unico obiettivo è elaborare il testo fornito secondo il criterio indicato e restituire l'output ESCLUSIVAMENTE in formato JSON grezzo (senza blocchi markdown \`\`\`json).
@@ -166,8 +284,6 @@ Restituisci solo questo oggetto JSON:
     );
 }
 
-/* TRANSLATION SERVICE 
-*/
 export async function translate(text: string, targetLanguage: string): Promise<LLMResponse> {
     return askLLM(
 `Sei un motore di elaborazione testi AI. Il tuo unico obiettivo è tradurre il testo fornito e restituire l'output ESCLUSIVAMENTE in formato JSON grezzo (senza blocchi markdown \`\`\`json).
@@ -214,8 +330,6 @@ Restituisci solo questo oggetto JSON:
     );
 }
 
-/* SIX HATS SERVICE 
-*/
 export async function applySixHats(text: string, hat: string): Promise<LLMResponse> {
     if (hat === 'Bianco') {
         return askLLM(
@@ -262,7 +376,6 @@ Restituisci solo questo oggetto JSON:
 }`
         );
     } else {
-        // Fallback temporaneo per altri cappelli non ancora definiti nei prompt
         return Promise.resolve({
             outcome: { status: 'INVALID_INPUT', code: 'HAT_NOT_IMPLEMENTED' },
             data: { rewritten_text: null }
