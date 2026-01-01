@@ -1,4 +1,15 @@
-/* CONFIGURAZIONI */
+/* * GESTIONE CONFIGURAZIONE LLM (Strategia Ibrida)
+ * * Il sistema utilizza un approccio a doppia configurazione per garantire flessibilità e velocità:
+ * * 1. PRIMARY (Locale/Ollama): 
+ * Legge le variabili dal file .env. Questa è la modalità consigliata per lo sviluppo:
+ * utilizzare un modello locale (es. Ollama) elimina la latenza di rete e riduce drasticamente 
+ * i tempi di attesa, permettendo iterazioni di test molto più rapide.
+ * * 2. FALLBACK (Remoto/Zucchetti): 
+ * Se la configurazione locale non è impostata o il server locale non risponde, 
+ * il sistema commuta automaticamente sul server remoto Zucchetti. 
+ * Questo garantisce che l'applicazione funzioni sempre, anche per gli sviluppatori 
+ * che non hanno installato o avviato un LLM locale.
+ */
 interface LLMConfig {
     name: string;
     url: string;
@@ -44,7 +55,7 @@ async function executeRequest(config: LLMConfig, prompt: string): Promise<string
     
     const controller = new AbortController();
 
-    // Timeout di 10s: se il server non inizia a rispondere entro questo tempo, abortiamo.
+    // Timeout di 60s: se il server non inizia a rispondere entro questo tempo, abortiamo.
     const timeToFirstTokenLimit = 60000; 
     const timeoutId = setTimeout(() => controller.abort(), timeToFirstTokenLimit);
 
