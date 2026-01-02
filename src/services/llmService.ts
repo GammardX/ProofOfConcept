@@ -1,15 +1,4 @@
-/* * GESTIONE CONFIGURAZIONE LLM (Strategia Ibrida)
- * * Il sistema utilizza un approccio a doppia configurazione per garantire flessibilità e velocità:
- * * 1. PRIMARY (Locale/Ollama): 
- * Legge le variabili dal file .env. Questa è la modalità consigliata per lo sviluppo:
- * utilizzare un modello locale (es. Ollama) elimina la latenza di rete e riduce drasticamente 
- * i tempi di attesa, permettendo iterazioni di test molto più rapide.
- * * 2. FALLBACK (Remoto/Zucchetti): 
- * Se la configurazione locale non è impostata o il server locale non risponde, 
- * il sistema commuta automaticamente sul server remoto Zucchetti. 
- * Questo garantisce che l'applicazione funzioni sempre, anche per gli sviluppatori 
- * che non hanno installato o avviato un LLM locale.
- */
+/* Configurazione interfacce e costanti */
 interface LLMConfig {
     name: string;
     url: string;
@@ -42,22 +31,81 @@ export interface LLMResponse {
     data: {
         rewritten_text: string | null;
         detected_language?: string;
-    };
+    } | null; 
 }
 
-/* Esegue la chiamata API gestendo lo streaming e il timeout sul primo byte */
+/**
+ * Pulisce e parsa la stringa in JSON.
+ * Gestisce markdown, spazi e newlines non validi.
+ */
+function extractJSON(text: string): any {
+    console.log('[DEBUG] extractJSON - Input ricevuto (len):', text.length); // debug
+    console.log('[DEBUG] extractJSON - Primi 50 chars:', text.substring(0, 50)); // debug
+    console.log('[DEBUG] extractJSON - Ultimi 50 chars:', text.substring(text.length - 50)); // debug
+
+    try {
+        const result = JSON.parse(text);
+        console.log('[DEBUG] extractJSON - Parsing diretto RIUSCITO'); // debug
+        return result;
+    } catch (e) {
+        console.warn('[DEBUG] extractJSON - Parsing diretto fallito, avvio pulizia...', e); // debug
+
+        // Rimuove markdown e trimma
+        let clean = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+        console.log('[DEBUG] extractJSON - Testo pulito da markdown:', clean); // debug
+
+        // Cerca parentesi graffe
+        const firstBrace = clean.indexOf('{');
+        const lastBrace = clean.lastIndexOf('}');
+        console.log(`[DEBUG] extractJSON - Graffe trovate: Inizio=${firstBrace}, Fine=${lastBrace}`); // debug
+
+        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+            const potentialJson = clean.substring(firstBrace, lastBrace + 1);
+            console.log('[DEBUG] extractJSON - Stringa estratta chirurgicamente:', potentialJson); // debug
+            
+            try {
+                return JSON.parse(potentialJson);
+            } catch (innerError) {
+                console.warn('[DEBUG] extractJSON - Parsing chirurgico fallito, tentativo sanitizzazione deep...'); // debug
+                
+                try {
+                     // Escape manuale di caratteri proibiti in JSON
+                     const sanitized = potentialJson
+                        .replace(/(?<!\\)\n/g, "\\n") 
+                        .replace(/(?<!\\)\r/g, "")
+                        .replace(/\t/g, "\\t");
+                     
+                     console.log('[DEBUG] extractJSON - Stringa sanitizzata:', sanitized); // debug
+                     return JSON.parse(sanitized);
+                } catch (finalError) {
+                    console.error('[DEBUG] extractJSON - FATAL: Parsing impossibile.', finalError); // debug
+                    throw new Error("JSON extraction failed");
+                }
+            }
+        }
+        console.error('[DEBUG] extractJSON - Nessun oggetto JSON trovato nelle graffe'); // debug
+        throw new Error("No JSON object found in text");
+    }
+}
+
+/**
+ * Gestisce la richiesta HTTP e lo stream SSE.
+ * Accumula i chunk "data:" e ritorna la stringa completa.
+ */
 async function executeRequest(config: LLMConfig, prompt: string): Promise<string> {
     if (!config.url || !config.model) {
+        console.error(`[DEBUG] executeRequest - Config incompleta per ${config.name}`); // debug
         throw new Error(`Configurazione incompleta per ${config.name}`);
     }
 
-    console.log(`[LLM Service] Tentativo con: ${config.name}`);
+    console.log(`[DEBUG] executeRequest - START richiesta a: ${config.name} (${config.url})`); // debug
+    console.log(`[DEBUG] executeRequest - Model: ${config.model}`); // debug
     
     const controller = new AbortController();
-
-    // Timeout di 60s: se il server non inizia a rispondere entro questo tempo, abortiamo.
-    const timeToFirstTokenLimit = 60000; 
-    const timeoutId = setTimeout(() => controller.abort(), timeToFirstTokenLimit);
+    const timeoutId = setTimeout(() => {
+        console.error('[DEBUG] executeRequest - Timeout TTFT scattato!'); // debug
+        controller.abort();
+    }, 60000);
 
     try {
         const response = await fetch(config.url, {
@@ -68,138 +116,136 @@ async function executeRequest(config: LLMConfig, prompt: string): Promise<string
             },
             body: JSON.stringify({
                 model: config.model,
-                messages: [
-                    { role: 'user', content: prompt }
-                ],
+                messages: [{ role: 'user', content: prompt }],
                 temperature: 0.1,
                 stream: true 
             }),
             signal: controller.signal
         });
 
+        console.log(`[DEBUG] executeRequest - Status risposta: ${response.status} ${response.statusText}`); // debug
+
         if (!response.ok) {
             clearTimeout(timeoutId); 
             throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
         }
 
-        if (!response.body) {
-            throw new Error('Nessun body nella risposta');
-        }
+        if (!response.body) throw new Error('Nessun body nella risposta');
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
-        let fullContent = ''; 
-        let buffer = '';      
+        let accumulatedResponse = ''; 
+        let buffer = ''; 
+        let isFirstToken = true;
 
-        // --- FASE 1: ATTESA DEL PRIMO CHUNK (con Timeout attivo) ---
-        try {
-            const { value, done } = await reader.read();
-            
-            // Il server ha risposto: disattiviamo il timeout
-            clearTimeout(timeoutId);
-            console.log(`[LLM Service] ${config.name} ha iniziato a rispondere. Streaming in corso...`);
+        console.log('[DEBUG] executeRequest - Inizio lettura stream...'); // debug
 
-            if (value) {
-                const chunk = decoder.decode(value, { stream: true });
-                buffer += chunk;
-                
-                // Parsiamo i dati ricevuti
-                const parsed = parseStreamChunk(buffer);
-                fullContent += parsed.text;
-                buffer = parsed.remainingBuffer;
-            }
-            
-            if (done) return fullContent;
-
-        } catch (err: any) {
-            if (err.name === 'AbortError') {
-                throw new Error(`Timeout TTFT: Nessuna risposta iniziale entro ${timeToFirstTokenLimit}ms`);
-            }
-            throw err;
-        }
-
-        // --- FASE 2: LETTURA RESTANTE DELLO STREAM (Senza limiti di tempo) ---
         while (true) {
             const { value, done } = await reader.read();
             
-            if (done) break;
+            if (done) {
+                console.log('[DEBUG] executeRequest - Stream completato [DONE]'); // debug
+                break;
+            }
+
+            if (isFirstToken) {
+                clearTimeout(timeoutId);
+                console.log(`[DEBUG] executeRequest - Primo token ricevuto! Latency OK.`); // debug
+                isFirstToken = false;
+            }
 
             const chunk = decoder.decode(value, { stream: true });
             buffer += chunk;
             
-            const parsed = parseStreamChunk(buffer);
-            fullContent += parsed.text;
-            buffer = parsed.remainingBuffer;
+            // Gestione buffer per linee spezzate
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || ''; 
+
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('data: ')) {
+                    const jsonStr = trimmed.replace('data: ', '');
+                    if (jsonStr === '[DONE]') continue;
+
+                    try {
+                        const json = JSON.parse(jsonStr);
+                        const content = json.choices?.[0]?.delta?.content;
+                        if (content) {
+                            accumulatedResponse += content;
+                            // console.log('[DEBUG] chunk content:', content); // debug (troppo verboso, scommenta se serve)
+                        }
+                    } catch (e) {
+                        console.warn('[DEBUG] Errore parse chunk SSE:', jsonStr); // debug
+                    }
+                }
+            }
         }
 
-        return fullContent;
+        console.log('[DEBUG] executeRequest - Risposta totale accumulata (len):', accumulatedResponse.length); // debug
+        return accumulatedResponse;
 
-    } catch (error) {
+    } catch (error: any) {
         clearTimeout(timeoutId);
+        console.error('[DEBUG] executeRequest - Errore catturato:', error); // debug
+        if (error.name === 'AbortError') {
+             throw new Error(`Timeout TTFT: Nessuna risposta iniziale entro 60s`);
+        }
         throw error;
     }
 }
 
-/* Helper per estrarre il testo dai pacchetti "data: {...}" dello stream */
-function parseStreamChunk(buffer: string): { text: string, remainingBuffer: string } {
-    let accumulatedText = '';
-    const lines = buffer.split('\n');
-    
-    // L'ultima riga potrebbe essere incompleta, la teniamo nel buffer per il prossimo ciclo
-    const remainingBuffer = lines.pop() || ''; 
-
-    for (const line of lines) {
-        const trimmed = line.trim();
-        if (trimmed.startsWith('data: ')) {
-            const jsonStr = trimmed.replace('data: ', '');
-            if (jsonStr === '[DONE]') continue;
-            
-            try {
-                const json = JSON.parse(jsonStr);
-                const content = json.choices?.[0]?.delta?.content;
-                if (content) {
-                    accumulatedText += content;
-                }
-            } catch (e) {
-                // Ignora linee JSON parziali o malformate
-            }
-        }
-    }
-
-    return { text: accumulatedText, remainingBuffer };
-}
-
-/* Funzione principale che gestisce il ciclo di tentativi (Primary -> Fallback) */
+/**
+ * Funzione principale: orchestra i tentativi (Primary -> Fallback)
+ * e parsa il risultato finale.
+ */
 export async function askLLM(prompt: string): Promise<LLMResponse> {
+    console.log('[DEBUG] askLLM - Inizio procedura...'); 
     
     for (const config of CONFIG_ATTEMPTS) {
         try {
-            // Esegue la richiesta e ottiene tutto il testo
-            let content = await executeRequest(config, prompt);
+            console.log(`[DEBUG] askLLM - Tentativo con config: ${config.name}`); 
             
-            // Pulisce eventuali blocchi markdown json
-            content = content.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-
+            const rawText = await executeRequest(config, prompt);
+            console.log('[DEBUG] askLLM - Raw Text ricevuto, passo a extractJSON...'); 
+            
             try {
-                return JSON.parse(content);
+                const parsedData = extractJSON(rawText);
+
+                if (!parsedData.outcome) {
+                     console.error('[DEBUG] askLLM - JSON mancante di outcome:', parsedData);
+                     throw new Error("JSON structure validation failed: missing outcome");
+                }
+
+                if (parsedData.outcome.status === 'success' && !parsedData.data) {
+                    console.error('[DEBUG] askLLM - Successo dichiarato ma data mancante:', parsedData);
+                    throw new Error("JSON structure validation failed: missing data on success");
+                }
+
+                console.log('[DEBUG] askLLM - Successo! Ritorno dati.'); 
+                return parsedData;
+
             } catch (e) {
-                console.error(`[LLM Service] Errore parsing JSON finale da ${config.name}`, content);
-                return {
-                    outcome: { status: 'INVALID_INPUT', code: 'JSON_PARSE_ERROR' },
-                    data: { rewritten_text: null }
-                };
+                console.warn(`[DEBUG] askLLM - Parsing/Validazione fallita per ${config.name}.`, e); 
+                
+                if (config === CONFIG_ATTEMPTS[CONFIG_ATTEMPTS.length - 1]) {
+                    console.error('[DEBUG] askLLM - Tutti i tentativi falliti (Parsing).'); 
+                     return {
+                        outcome: { status: 'INVALID_INPUT', code: 'JSON_PARSE_ERROR' },
+                        data: { rewritten_text: null, detected_language: 'unknown' }
+                    };
+                }
+                throw e; 
             }
 
         } catch (error) {
-            console.warn(`[LLM Service] Fallito tentativo con ${config.name}:`, error);
-            // Continua col prossimo config nel loop
+            console.warn(`[DEBUG] askLLM - Fallito tentativo API con ${config.name}:`, error); 
         }
     }
 
-    console.error("[LLM Service] Tutti i tentativi sono falliti.");
+    console.error("[DEBUG] askLLM - CRITICO: Nessuna configurazione ha funzionato."); 
     return {
         outcome: { status: 'INVALID_INPUT', code: 'API_CONNECTION_ERROR' },
-        data: { rewritten_text: null }
+        data: { rewritten_text: null, detected_language: 'unknown' }
     };
 }
 
@@ -210,7 +256,7 @@ export async function summarizeText(text: string, percentage: number): Promise<L
 `Sei un motore di elaborazione testi AI. Il tuo unico obiettivo è ridurre la lunghezza del testo fornito e restituire l'output ESCLUSIVAMENTE in formato JSON grezzo (senza blocchi markdown \`\`\`json).
 
 DATI DI INPUT:
-- Testo da elaborare: "${text.replace(/"/g, '\\"')}"
+- Testo da elaborare: ${JSON.stringify(text)}
 - Percentuale di riduzione target: ${percentage}%
 
 ISTRUZIONI DI ELABORAZIONE:
@@ -256,8 +302,8 @@ export async function improveWriting(text: string, criterion: string): Promise<L
 `Sei un motore di elaborazione testi AI. Il tuo unico obiettivo è elaborare il testo fornito secondo il criterio indicato e restituire l'output ESCLUSIVAMENTE in formato JSON grezzo (senza blocchi markdown \`\`\`json).
 
 DATI DI INPUT:
-- Testo da elaborare: "${text.replace(/"/g, '\\"')}"
-- Criterio di riscrittura: "${criterion.replace(/"/g, '\\"')}"
+- Testo da elaborare: ${JSON.stringify(text)}
+- Criterio di riscrittura: ${JSON.stringify(criterion)}
 
 ISTRUZIONI DI ELABORAZIONE:
 
@@ -300,7 +346,7 @@ export async function translate(text: string, targetLanguage: string): Promise<L
 `Sei un motore di elaborazione testi AI. Il tuo unico obiettivo è tradurre il testo fornito e restituire l'output ESCLUSIVAMENTE in formato JSON grezzo (senza blocchi markdown \`\`\`json).
 
 DATI DI INPUT:
-- Testo da elaborare: "${text.replace(/"/g, '\\"')}"
+- Testo da elaborare: ${JSON.stringify(text)}
 - Lingua di destinazione: "${targetLanguage}"
 
 ISTRUZIONI DI ELABORAZIONE:
@@ -347,7 +393,7 @@ export async function applySixHats(text: string, hat: string): Promise<LLMRespon
 `Sei un motore di elaborazione testi AI. Il tuo unico obiettivo è analizzare il testo fornito e restituire l'output ESCLUSIVAMENTE in formato JSON grezzo (senza blocchi markdown \`\`\`json).
 
 DATI DI INPUT:
-- Testo da elaborare: "${text.replace(/"/g, '\\"')}"
+- Testo da elaborare: ${JSON.stringify(text)}
 
 ISTRUZIONI DI ELABORAZIONE:
 

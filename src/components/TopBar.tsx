@@ -43,6 +43,7 @@ export default function TopBar({ title, llm }: TopBarProps) {
             llm.setDialogResult(`Input non valido. Codice: ${outcome.code}`);
         } else {
             llm.setDialogResult('Errore sconosciuto nella risposta del server.');
+			llm.setDialogResult(JSON.stringify(outcome));
         }
     };
 
