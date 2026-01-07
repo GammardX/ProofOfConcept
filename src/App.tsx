@@ -4,6 +4,7 @@ import DialogLLM from './components/DialogLLM';
 import FileSidebar from './components/FileSidebar';
 import MarkdownEditor from './components/MarkdownEditor';
 import TopBar from './components/TopBar';
+import { fileService } from './services/fileService';
 import './style/main.css';
 
 // --- TIPI ---
@@ -137,6 +138,27 @@ export default function App() {
 		);
 	};
 
+	const handleImportNote = async () => {
+		const data = await fileService.importFile();
+		if (data) {
+			const newNote: Note = {
+				id: Date.now().toString(),
+				title: data.title,
+				content: data.content,
+				createdAt: Date.now()
+			};
+			setNotes(prev => [...prev, newNote]);
+			setActiveNoteId(newNote.id);
+		}
+	};
+
+	const handleExportNote = async (id: string) => {
+		const note = notes.find(n => n.id === id);
+		if (note) {
+			await fileService.exportFile(note.title, note.content);
+		}
+	};
+
 	// --- LOGICA RESIZING SIDEBAR ---
 	const startResizing = useCallback(() => setIsResizing(true), []);
 	const stopResizing = useCallback(() => setIsResizing(false), []);
@@ -179,6 +201,8 @@ export default function App() {
 					onCreate={handleCreateNote}
 					onDelete={handleDeleteNote}
 					onRename={handleRenameNote}
+					onImport={handleImportNote} 
+    				onExport={handleExportNote} 
 				/>
 			</div>
 

@@ -9,6 +9,8 @@ interface FileSidebarProps {
     onCreate: () => void;
     onDelete: (id: string, e: React.MouseEvent) => void;
     onRename: (id: string, newTitle: string) => void; 
+    onImport: () => void;
+    onExport: (id: string) => void;
 }
 
 export default function FileSidebar({
@@ -17,7 +19,9 @@ export default function FileSidebar({
     onSelect,
     onCreate,
     onDelete,
-    onRename
+    onRename,
+    onImport,
+    onExport
 }: FileSidebarProps) {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [tempTitle, setTempTitle] = useState("");
@@ -51,6 +55,16 @@ export default function FileSidebar({
         <aside className='file-sidebar'>
             <div className='sidebar-header'>
                 <h3>Le tue note</h3>
+                <button onClick={onImport} className='btn-icon' title="Carica da file">
+                    📂
+                </button>
+                <button 
+                    onClick={() => onExport(activeId)} 
+                    className='btn-icon' 
+                    title="Salva nota su disco"
+                    disabled={!activeId}>
+                    💾
+                </button>
                 <button onClick={onCreate} className='btn-add' title="Nuova nota">
                     +
                 </button>
