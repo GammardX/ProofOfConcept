@@ -14,6 +14,7 @@ async def call_llm(prompt: str, url: str, model: str, key: str) -> str:
                 "model": model,
                 "messages": [{"role": "user", "content": prompt}],
                 "temperature": 0.1,
+                "response_format": {"type": "json_object"}
             },
         )
         r.raise_for_status()

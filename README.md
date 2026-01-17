@@ -1,26 +1,49 @@
-# Avvio backend
+# Prerequisiti
+
+## Avere un file .env dentro la cartella backend
+File di esempio
+
+```bash
+# Chiave api
+LLM_API_KEY=xx-xxxxxxxxxxxxxxxxxaxxxxx
+
+# Url Api
+LLM_API_URL=http://sito:porta/v1/chat/completions
+
+# Modello
+LLM_MODEL=gpt-oss:20b
+```
+
+# 1 Crea virtual environment python (FastAPI) con requirements.txt
+
+Nella root del progetto esegui il comando:
+importante avere la versione pyton 3.12.x poichè versioni più recenti risultano instabili
 
 ```cmd
+py -3.12 -m venv .venv
+.venv\Scripts\activate
+pip install -r backend/requirements.txt
+```
+
+Questo comando basta eseguirlo la prima volta e basta
+
+# 2 Avviare in due terminali attivi contemporaneamente backend e frontend
+
+## 2.1 Avvio backend
+
+```cmd
+.venv\Scripts\activate
 cd backend
 uvicorn app.main:app --reload
 ```
 
-# Avvio frontend
+## 2.2 Avvio frontend
 
 ```cmd
 cd frontend
 npm run dev
 ```
 
-# Crea virtual environment python (FastAPI) con requirements.txt
-
-Nella root del progetto esegui il comando:
-
-```cmd
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-```
 
 ## Se non funziona, segui questi passi:
 
@@ -37,7 +60,7 @@ python --version
 Nella root del progetto:
 
 ```cmd
-python -m venv .venv
+py -3.12 -m venv .venv
 ```
 
 3️⃣ Attiva il virtualenv (Windows) .venv\Scripts\activate
