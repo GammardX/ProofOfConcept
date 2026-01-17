@@ -1,17 +1,26 @@
 # Avvio backend
 
-cd backend uvicorn app.main:app --reload
+```cmd
+cd backend
+uvicorn app.main:app --reload
+```
 
 # Avvio frontend
 
-cd frontend npm run dev
+```cmd
+cd frontend
+npm run dev
+```
 
 # Crea virtual environment python (FastAPI) con requirements.txt
 
 Nella root del progetto esegui il comando:
 
-python -m venv .venv source .venv/bin/activate # su Linux/macOS
-.venv\Scripts\activate # su Windows pip install -r requirements.txt
+```cmd
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
 
 ## Se non funziona, segui questi passi:
 
@@ -19,17 +28,17 @@ python -m venv .venv source .venv/bin/activate # su Linux/macOS
 
 In PowerShell / CMD:
 
+```cmd
 python --version
-
-Se non funziona:
-
-py --version
+```
 
 2️⃣ Crea un virtual environment (se non esiste)
 
 Nella root del progetto:
 
+```cmd
 python -m venv .venv
+```
 
 3️⃣ Attiva il virtualenv (Windows) .venv\Scripts\activate
 
@@ -43,13 +52,17 @@ Dovresti vedere:
 
 Verifica:
 
+```cmd
 uvicorn --version
+```
 
 5️⃣ Avvia FastAPI (comando corretto)
 
 ⚠️ devi essere nella cartella backend (oppure adattare il path)
 
+```cmd
 uvicorn app.main:app --reload
+```
 
 # React + TypeScript + Vite
 
