@@ -6,6 +6,51 @@ cd backend uvicorn app.main:app --reload
 
 cd frontend npm run dev
 
+# Crea virtual environment python (FastAPI) con requirements.txt
+
+Nella root del progetto esegui il comando:
+
+python -m venv .venv source .venv/bin/activate # su Linux/macOS
+.venv\Scripts\activate # su Windows pip install -r requirements.txt
+
+## Se non funziona, segui questi passi:
+
+1️⃣ Verifica installazione Python
+
+In PowerShell / CMD:
+
+python --version
+
+Se non funziona:
+
+py --version
+
+2️⃣ Crea un virtual environment (se non esiste)
+
+Nella root del progetto:
+
+python -m venv .venv
+
+3️⃣ Attiva il virtualenv (Windows) .venv\Scripts\activate
+
+Dovresti vedere:
+
+(.venv) PS C:\tuo\progetto>
+
+⚠️ Se non vedi (venv) NON è attivo
+
+4️⃣ Installa FastAPI + Uvicorn pip install fastapi uvicorn
+
+Verifica:
+
+uvicorn --version
+
+5️⃣ Avvia FastAPI (comando corretto)
+
+⚠️ devi essere nella cartella backend (oppure adattare il path)
+
+uvicorn app.main:app --reload
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and
@@ -18,75 +63,3 @@ Currently, two official plugins are available:
   [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc)
   uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev
-& build performances. To add it, see
-[this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the
-configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-	globalIgnores(['dist']),
-	{
-		files: ['**/*.{ts,tsx}'],
-		extends: [
-			// Other configs...
-
-			// Remove tseslint.configs.recommended and replace with this
-			tseslint.configs.recommendedTypeChecked,
-			// Alternatively, use this for stricter rules
-			tseslint.configs.strictTypeChecked,
-			// Optionally, add this for stylistic rules
-			tseslint.configs.stylisticTypeChecked
-
-			// Other configs...
-		],
-		languageOptions: {
-			parserOptions: {
-				project: ['./tsconfig.node.json', './tsconfig.app.json'],
-				tsconfigRootDir: import.meta.dirname
-			}
-			// other options...
-		}
-	}
-]);
-```
-
-You can also install
-[eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x)
-and
-[eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom)
-for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x';
-import reactDom from 'eslint-plugin-react-dom';
-
-export default defineConfig([
-	globalIgnores(['dist']),
-	{
-		files: ['**/*.{ts,tsx}'],
-		extends: [
-			// Other configs...
-			// Enable lint rules for React
-			reactX.configs['recommended-typescript'],
-			// Enable lint rules for React DOM
-			reactDom.configs.recommended
-		],
-		languageOptions: {
-			parserOptions: {
-				project: ['./tsconfig.node.json', './tsconfig.app.json'],
-				tsconfigRootDir: import.meta.dirname
-			}
-			// other options...
-		}
-	}
-]);
-```

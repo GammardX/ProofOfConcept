@@ -1,24 +1,24 @@
 import {
+	Button,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogTitle,
+	Menu,
+	MenuItem,
+	Slider,
+	TextField,
+	Typography
+} from '@mui/material';
+import { useState } from 'react';
+import {
+	applySixHats,
 	improveWriting,
 	summarizeText,
 	translate,
-	applySixHats,
 	type LLMResponse
 } from '../services/llmService.ts';
 import '../style/topbar.css';
-import { 
-    Dialog, 
-    DialogTitle, 
-    DialogContent, 
-    DialogActions, 
-    Button, 
-    TextField, 
-    Menu, 
-    MenuItem,
-    Slider,
-    Typography 
-} from '@mui/material';
-import { useState } from 'react';
 
 interface TopBarProps {
 	title: string;
@@ -30,46 +30,49 @@ interface TopBarProps {
 }
 
 export default function TopBar({ title, llm }: TopBarProps) {
-    
-    // Helper per gestire la logica dei controlli JSON
-    const handleLLMResponse = (result: LLMResponse) => {
-        const { outcome, data } = result;
+	// Helper per gestire la logica dei controlli JSON
+	const handleLLMResponse = (result: LLMResponse) => {
+		const { outcome, data } = result;
 
-        if (outcome.status === 'success') {
-            llm.setDialogResult(data.rewritten_text || 'Nessun testo generato.');
-        } else if (outcome.status === 'refusal') {
-            llm.setDialogResult(`Richiesta rifiutata. Motivo: ${outcome.code} (${outcome.violation_category || 'Generico'}).`);
-        } else if (outcome.status === 'INVALID_INPUT') {
-            llm.setDialogResult(`Input non valido. Codice: ${outcome.code}`);
-        } else {
-            llm.setDialogResult('Errore sconosciuto nella risposta del server.');
+		if (outcome.status === 'success') {
+			llm.setDialogResult(data.rewritten_text || 'Nessun testo generato.');
+		} else if (outcome.status === 'refusal') {
+			llm.setDialogResult(
+				`Richiesta rifiutata. Motivo: ${outcome.code} (${outcome.violation_category || 'Generico'}).`
+			);
+		} else if (outcome.status === 'INVALID_INPUT') {
+			llm.setDialogResult(`Input non valido. Codice: ${outcome.code}`);
+		} else {
+			llm.setDialogResult('Errore sconosciuto nella risposta del server.');
 			llm.setDialogResult(JSON.stringify(outcome));
-        }
-    };
+		}
+	};
 
 	/*
 		------------------------------------
 		SUMMARY
 		------------------------------------
 	*/
-    const [openSummary, setOpenSummary] = useState(false);
-    const [summaryPercentage, setSummaryPercentage] = useState<number>(50);
+	const [openSummary, setOpenSummary] = useState(false);
+	const [summaryPercentage, setSummaryPercentage] = useState<number>(50);
 
 	const handleSummarizeClick = () => {
-        setOpenSummary(true);
+		setOpenSummary(true);
 	};
 
-    const handleConfirmSummarize = async () => {
-        setOpenSummary(false);
-        llm.openLoadingDialog();
+	const handleConfirmSummarize = async () => {
+		setOpenSummary(false);
+		llm.openLoadingDialog();
 
-        try {
+		try {
 			const result = await summarizeText(llm.currentText(), summaryPercentage);
 			handleLLMResponse(result);
 		} catch {
-			llm.setDialogResult('Errore di connessione o parsing durante la generazione.');
+			llm.setDialogResult(
+				'Errore di connessione o parsing durante la generazione.'
+			);
 		}
-    };
+	};
 
 	/*
 		------------------------------------
@@ -92,7 +95,9 @@ export default function TopBar({ title, llm }: TopBarProps) {
 			const result = await improveWriting(llm.currentText(), criterion);
 			handleLLMResponse(result);
 		} catch {
-			llm.setDialogResult('Errore di connessione o parsing durante la generazione.');
+			llm.setDialogResult(
+				'Errore di connessione o parsing durante la generazione.'
+			);
 		}
 	};
 
@@ -117,112 +122,115 @@ export default function TopBar({ title, llm }: TopBarProps) {
 			const result = await translate(llm.currentText(), targetLanguage);
 			handleLLMResponse(result);
 		} catch {
-			llm.setDialogResult('Errore di connessione o parsing durante la generazione.');
+			llm.setDialogResult(
+				'Errore di connessione o parsing durante la generazione.'
+			);
 		}
 	};
-	
+
 	/*
 		------------------------------------
 		SIX HATS
 		------------------------------------
 	*/
 	const sixHats = [
-		{ label: 'Bianco', color: '#ffffff' },  //fatti, informazioni
-		{ label: 'Rosso', color: '#ff0000' },   //emozioni, sentimenti
-		{ label: 'Nero', color: '#000000' },    //critica, problemi
-		{ label: 'Giallo', color: '#ffeb3b' },  //benefici, ottimismo
-		{ label: 'Verde', color: '#4caf50' },   //creatività, alternative
-		{ label: 'Blu', color: '#2196f3' },     //controllo, sintesi, gestione processo
-		];
+		{ label: 'Bianco', color: '#ffffff' }, //fatti, informazioni
+		{ label: 'Rosso', color: '#ff0000' }, //emozioni, sentimenti
+		{ label: 'Nero', color: '#000000' }, //critica, problemi
+		{ label: 'Giallo', color: '#ffeb3b' }, //benefici, ottimismo
+		{ label: 'Verde', color: '#4caf50' }, //creatività, alternative
+		{ label: 'Blu', color: '#2196f3' } //controllo, sintesi, gestione processo
+	];
 
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const openMenu = Boolean(anchorEl);
 
 	const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-	    setAnchorEl(event.currentTarget);
+		setAnchorEl(event.currentTarget);
 	};
 
 	const handleMenuClose = () => {
-	    setAnchorEl(null);
+		setAnchorEl(null);
 	};
 
 	return (
 		<>
-		<header className='top-bar'>
-			<div className='file-info'>
-				<h2>{title}</h2>
-			</div>
-			<div className='actions'>
-				<button onClick={handleSummarizeClick}>📝 Riassumi</button>
-				<button onClick={handleImproveClick}>✨ Migliora</button>
-				<button onClick={handleTranslate}>🌐 Traduci</button>
-				<button onClick={(e) => setAnchorEl(e.currentTarget as HTMLElement)}>🧢 Analisi</button>
-			</div>
-			<Menu anchorEl={anchorEl} open={openMenu} onClose={handleMenuClose}>
-				{sixHats.map((hat) => (
-					<MenuItem
-					key={hat.label}
-					onClick={async () => {
-						handleMenuClose();
-						llm.openLoadingDialog();
-						try {
-							const result = await applySixHats(llm.currentText(), hat.label);
-							handleLLMResponse(result);
-						} catch {
-							llm.setDialogResult('Errore di connessione o parsing durante la generazione.');
-						}
-					}}>
-					<span
-						style={{
-						display: 'inline-block',
-						width: 12,
-						height: 12,
-						borderRadius: '50%',
-						backgroundColor: hat.color,
-						marginRight: 8
-						}}
-					></span>
-					{hat.label}
-					</MenuItem>
-				))}
+			<header className='top-bar'>
+				<div className='file-info'>
+					<h2>{title}</h2>
+				</div>
+				<div className='actions'>
+					<button onClick={handleSummarizeClick}>📝 Riassumi</button>
+					<button onClick={handleImproveClick}>✨ Migliora</button>
+					<button onClick={handleTranslate}>🌐 Traduci</button>
+					<button onClick={(e) => setAnchorEl(e.currentTarget as HTMLElement)}>
+						🧢 Analisi
+					</button>
+				</div>
+				<Menu anchorEl={anchorEl} open={openMenu} onClose={handleMenuClose}>
+					{sixHats.map((hat) => (
+						<MenuItem
+							key={hat.label}
+							onClick={async () => {
+								handleMenuClose();
+								llm.openLoadingDialog();
+								try {
+									const result = await applySixHats(
+										llm.currentText(),
+										hat.label
+									);
+									handleLLMResponse(result);
+								} catch {
+									llm.setDialogResult(
+										'Errore di connessione o parsing durante la generazione.'
+									);
+								}
+							}}>
+							<span
+								style={{
+									display: 'inline-block',
+									width: 12,
+									height: 12,
+									borderRadius: '50%',
+									backgroundColor: hat.color,
+									marginRight: 8
+								}}></span>
+							{hat.label}
+						</MenuItem>
+					))}
 				</Menu>
+			</header>
 
-		</header>
-
-            {/* --- DIALOG RIASSUMI --- */}
-            <Dialog open={openSummary} onClose={() => setOpenSummary(false)}>
+			{/* --- DIALOG RIASSUMI --- */}
+			<Dialog open={openSummary} onClose={() => setOpenSummary(false)}>
 				<DialogTitle>Intensità del riassunto</DialogTitle>
 
 				<DialogContent sx={{ minWidth: 300, mt: 1 }}>
-                    <Typography gutterBottom>
-                        Percentuale di riduzione: {summaryPercentage}%
-                    </Typography>
-                    <Slider
-                        value={summaryPercentage}
-                        onChange={(_, newValue) => setSummaryPercentage(newValue as number)}
-                        aria-labelledby="input-slider"
-                        step={10}
-                        min={10}
-                        max={90}
-                        valueLabelDisplay="auto"
-                    />
-                    <Typography variant="caption" color="text.secondary">
-                        (10% = riassunto leggero, 90% = molto sintetico)
-                    </Typography>
+					<Typography gutterBottom>
+						Percentuale di riduzione: {summaryPercentage}%
+					</Typography>
+					<Slider
+						value={summaryPercentage}
+						onChange={(_, newValue) => setSummaryPercentage(newValue as number)}
+						aria-labelledby='input-slider'
+						step={10}
+						min={10}
+						max={90}
+						valueLabelDisplay='auto'
+					/>
+					<Typography variant='caption' color='text.secondary'>
+						(10% = riassunto leggero, 90% = molto sintetico)
+					</Typography>
 				</DialogContent>
 
 				<DialogActions>
-					<Button onClick={() => setOpenSummary(false)}>
-						Annulla
-					</Button>
-					<Button onClick={handleConfirmSummarize}>
-						Applica
-					</Button>
+					<Button onClick={() => setOpenSummary(false)}>Annulla</Button>
+					<Button onClick={handleConfirmSummarize}>Applica</Button>
 				</DialogActions>
 			</Dialog>
 
-            {/* --- DIALOG MIGLIORA --- */}
-		    <Dialog open={openCriterion} onClose={() => setOpenCriterion(false)}>
+			{/* --- DIALOG MIGLIORA --- */}
+			<Dialog open={openCriterion} onClose={() => setOpenCriterion(false)}>
 				<DialogTitle>Decidi il criterio di riscrittura</DialogTitle>
 
 				<DialogContent>
@@ -231,27 +239,24 @@ export default function TopBar({ title, llm }: TopBarProps) {
 						fullWidth
 						multiline
 						minRows={3}
-						placeholder="Es: più formale, più chiaro, stile accademico…"
+						placeholder='Es: più formale, più chiaro, stile accademico…'
 						value={criterion}
 						onChange={(e) => setCriterion(e.target.value)}
 					/>
 				</DialogContent>
 
 				<DialogActions>
-					<Button onClick={() => setOpenCriterion(false)}>
-						Annulla
-					</Button>
-					<Button
-						onClick={handleConfirmImprove}
-						disabled={!criterion.trim()}
-					>
+					<Button onClick={() => setOpenCriterion(false)}>Annulla</Button>
+					<Button onClick={handleConfirmImprove} disabled={!criterion.trim()}>
 						Applica
 					</Button>
 				</DialogActions>
 			</Dialog>
 
-            {/* --- DIALOG TRADUCI --- */}
-			<Dialog open={openTargetLanguage} onClose={() => setOpenTargetLanguage(false)}>
+			{/* --- DIALOG TRADUCI --- */}
+			<Dialog
+				open={openTargetLanguage}
+				onClose={() => setOpenTargetLanguage(false)}>
 				<DialogTitle>Decidi la lingua di destinazione</DialogTitle>
 
 				<DialogContent>
@@ -260,20 +265,17 @@ export default function TopBar({ title, llm }: TopBarProps) {
 						fullWidth
 						multiline
 						minRows={3}
-						placeholder="Es: inglese, spagnolo, francese…"
+						placeholder='Es: inglese, spagnolo, francese…'
 						value={targetLanguage}
 						onChange={(e) => setTargetLanguage(e.target.value)}
 					/>
 				</DialogContent>
 
 				<DialogActions>
-					<Button onClick={() => setOpenTargetLanguage(false)}>
-						Annulla
-					</Button>
+					<Button onClick={() => setOpenTargetLanguage(false)}>Annulla</Button>
 					<Button
 						onClick={handleConfirmTranslate}
-						disabled={!targetLanguage.trim()}
-					>
+						disabled={!targetLanguage.trim()}>
 						Applica
 					</Button>
 				</DialogActions>
