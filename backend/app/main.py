@@ -1,12 +1,8 @@
 from app.config import settings
 from app.llm.client import call_llm
 from app.llm.parser import extract_json
-from app.llm.prompts import (
-    summarize_prompt, 
-    improve_prompt, 
-    translate_prompt, 
-    six_hats_prompt
-)
+from app.llm.prompts import (improve_prompt, six_hats_prompt, summarize_prompt,
+                             translate_prompt)
 from app.llm.schemas import LLMResponse
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,6 +11,8 @@ app = FastAPI()
 
 origins = [
     "http://localhost:5173",
+    "http://localhost:8000",
+    "http://padova.zucchetti.it:14000"
 ]
 
 app.add_middleware(
