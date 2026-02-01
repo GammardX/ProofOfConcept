@@ -1,4 +1,4 @@
-import type EasyMDE from 'easymde';
+import EasyMDE from 'easymde';
 import 'easymde/dist/easymde.min.css';
 import { useEffect, useMemo, useState } from 'react';
 import SimpleMDE from 'react-simplemde-editor';
@@ -61,7 +61,7 @@ export default function MarkdownEditor({
 	useEffect(() => {
 		if (!editorInstance) return;
 		if (!editorInstance.isSideBySideActive()) {
-			editorInstance.toggleSideBySide();
+			EasyMDE.toggleSideBySide(editorInstance);
 		}
 	}, [editorInstance]);
 

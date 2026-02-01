@@ -35,7 +35,7 @@ export default function TopBar({ title, llm }: TopBarProps) {
 		const { outcome, data } = result;
 
 		if (outcome.status === 'success') {
-			llm.setDialogResult(data.rewritten_text || 'Nessun testo generato.');
+			llm.setDialogResult(data?.rewritten_text || 'Nessun testo generato.');
 		} else if (outcome.status === 'refusal') {
 			llm.setDialogResult(
 				`Richiesta rifiutata. Motivo: ${outcome.code} (${outcome.violation_category || 'Generico'}).`
@@ -133,7 +133,10 @@ export default function TopBar({ title, llm }: TopBarProps) {
 		SIX HATS
 		------------------------------------
 	*/
-	const sixHats = [
+	const sixHats: Array<{
+		label: 'Bianco' | 'Rosso' | 'Nero' | 'Giallo' | 'Verde' | 'Blu';
+		color: string;
+	}> = [
 		{ label: 'Bianco', color: '#ffffff' }, //fatti, informazioni
 		{ label: 'Rosso', color: '#ff0000' }, //emozioni, sentimenti
 		{ label: 'Nero', color: '#000000' }, //critica, problemi
@@ -144,10 +147,6 @@ export default function TopBar({ title, llm }: TopBarProps) {
 
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const openMenu = Boolean(anchorEl);
-
-	const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-		setAnchorEl(event.currentTarget);
-	};
 
 	const handleMenuClose = () => {
 		setAnchorEl(null);
