@@ -38,12 +38,21 @@ uvicorn app.main:app --reload
 ```
 
 ## 2.2 Avvio frontend
+### 2.2.1 Avvio frontend user
+
+```cmd
+cd frontend
+npm install
+npm run build
+npm run preview
+```
+
+### 2.2.1 Avvio frontend developer
 
 ```cmd
 cd frontend
 npm run dev
 ```
-
 
 ## Se non funziona, segui questi passi:
 
