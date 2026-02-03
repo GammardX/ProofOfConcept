@@ -23,11 +23,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-async def run_llm_request(prompt: str):
-    """Funzione helper per evitare di ripetere il try/except/fallback ovunque"""
+async def run_llm_request(messages: list[dict]):
+    """Funzione helper aggiornata per passare messaggi strutturati"""
     try:
         raw = await call_llm(
-            prompt,
+            messages, 
             settings.LLM_API_URL,
             settings.LLM_MODEL,
             settings.LLM_API_KEY,
@@ -35,33 +35,33 @@ async def run_llm_request(prompt: str):
     except Exception as e:
         print(f"Primary LLM failed: {e}. Switching to fallback.")
         raw = await call_llm(
-            prompt,
+            messages, 
             "http://padova.zucchetti.it:14000/v1/chat/completions",
             "gpt-oss:20b",
             settings.LLM_API_KEY,
         )
     return extract_json(raw)
 
-
 @app.post("/llm/summarize", response_model=LLMResponse)
 async def summarize(payload: dict):
-    prompt = summarize_prompt(payload["text"], payload["percentage"])
-    return await run_llm_request(prompt)
+    messages = summarize_prompt(payload["text"], payload["percentage"])
+    return await run_llm_request(messages)
+
 
 
 @app.post("/llm/improve", response_model=LLMResponse)
 async def improve(payload: dict):
-    prompt = improve_prompt(payload["text"], payload["criterion"])
-    return await run_llm_request(prompt)
+    messages = improve_prompt(payload["text"], payload["criterion"])
+    return await run_llm_request(messages)
 
 
 @app.post("/llm/translate", response_model=LLMResponse)
 async def translate(payload: dict):
-    prompt = translate_prompt(payload["text"], payload["targetLanguage"])
-    return await run_llm_request(prompt)
+    messages = translate_prompt(payload["text"], payload["targetLanguage"])
+    return await run_llm_request(messages)
 
 
 @app.post("/llm/six-hats", response_model=LLMResponse)
 async def six_hats(payload: dict):
-    prompt = six_hats_prompt(payload["text"], payload["hat"])
-    return await run_llm_request(prompt)
+    messages = six_hats_prompt(payload["text"], payload["hat"])
+    return await run_llm_request(messages)

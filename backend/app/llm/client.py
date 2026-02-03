@@ -1,8 +1,7 @@
 import httpx
 from app.config import settings
 
-
-async def call_llm(prompt: str, url: str, model: str, key: str) -> str:
+async def call_llm(messages: list[dict], url: str, model: str, key: str) -> str:
     async with httpx.AsyncClient(timeout=60) as client:
         r = await client.post(
             url,
@@ -12,7 +11,7 @@ async def call_llm(prompt: str, url: str, model: str, key: str) -> str:
             },
             json={
                 "model": model,
-                "messages": [{"role": "user", "content": prompt}],
+                "messages": messages, 
                 "temperature": 0.1,
                 "response_format": {"type": "json_object"}
             },
