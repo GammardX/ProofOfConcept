@@ -55,19 +55,21 @@ export default function FileSidebar({
         <aside className='file-sidebar'>
             <div className='sidebar-header'>
                 <h3>Le tue note</h3>
-                <button onClick={onImport} className='btn-icon' title="Carica da file">
-                    📂
-                </button>
-                <button 
-                    onClick={() => onExport(activeId)} 
-                    className='btn-icon' 
-                    title="Salva nota su disco"
-                    disabled={!activeId}>
-                    💾
-                </button>
-                <button onClick={onCreate} className='btn-add' title="Nuova nota">
-                    +
-                </button>
+                <div className='button-files'>
+                    <button onClick={onImport} className='btn-icon' title="Carica da file">
+                        📂
+                    </button>
+                    <button 
+                        onClick={() => onExport(activeId)} 
+                        className='btn-icon' 
+                        title="Salva nota su disco"
+                        disabled={!activeId}>
+                        💾
+                    </button>
+                    <button onClick={onCreate} className='btn-add' title="Nuova nota">
+                        +
+                    </button>
+                </div>
             </div>
             
             <ul className='file-list'>

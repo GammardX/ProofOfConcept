@@ -95,3 +95,8 @@
     color: #1f2937;
     min-width: 0;
 }
+
+.button-files {
+    gap: 8px;
+    display: flex;
+}
