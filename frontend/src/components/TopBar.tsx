@@ -133,24 +133,27 @@ export default function TopBar({ title, llm }: TopBarProps) {
 		SIX HATS
 		------------------------------------
 	*/
-	const sixHats: Array<{
-		label: 'Bianco' | 'Rosso' | 'Nero' | 'Giallo' | 'Verde' | 'Blu';
-		color: string;
-	}> = [
-		{ label: 'Bianco', color: '#ffffff' }, //fatti, informazioni
-		{ label: 'Rosso', color: '#ff0000' }, //emozioni, sentimenti
-		{ label: 'Nero', color: '#000000' }, //critica, problemi
-		{ label: 'Giallo', color: '#ffeb3b' }, //benefici, ottimismo
-		{ label: 'Verde', color: '#4caf50' }, //creatività, alternative
-		{ label: 'Blu', color: '#2196f3' } //controllo, sintesi, gestione processo
-	];
+	type HatId = 'bianco' | 'rosso' | 'nero' | 'giallo' | 'verde' | 'blu';
+
+    const sixHats: Array<{
+        id: HatId; 
+        label: string;
+        color: string;
+    }> = [
+        { id: 'bianco', label: 'Bianco: Fatti', color: '#ffffff' }, 
+        { id: 'rosso', label: 'Rosso: Emozioni', color: '#ff0000' },
+        { id: 'nero', label: 'Nero: Rischi', color: '#000000' },
+        { id: 'giallo', label: 'Giallo: Benefici', color: '#ffeb3b' },
+        { id: 'verde', label: 'Verde: Creatività', color: '#4caf50' },
+        { id: 'blu', label: 'Blu: Gestione', color: '#2196f3' }
+    ];
 
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-	const openMenu = Boolean(anchorEl);
+    const openMenu = Boolean(anchorEl);
 
-	const handleMenuClose = () => {
-		setAnchorEl(null);
-	};
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
 
 	return (
 		<>
@@ -167,38 +170,39 @@ export default function TopBar({ title, llm }: TopBarProps) {
 					</button>
 				</div>
 				<Menu anchorEl={anchorEl} open={openMenu} onClose={handleMenuClose}>
-					{sixHats.map((hat) => (
-						<MenuItem
-							key={hat.label}
-							onClick={async () => {
-								handleMenuClose();
-								llm.openLoadingDialog();
-								try {
-									const result = await applySixHats(
-										llm.currentText(),
-										hat.label
-									);
-									handleLLMResponse(result);
-								} catch {
-									llm.setDialogResult(
-										'Errore di connessione o parsing durante la generazione.'
-									);
-								}
-							}}>
-							<span
-								style={{
-									display: 'inline-block',
-									width: 12,
-									height: 12,
-									borderRadius: '50%',
-									backgroundColor: hat.color,
-									marginRight: 8
-								}}></span>
-							{hat.label}
-						</MenuItem>
-					))}
-				</Menu>
-			</header>
+                    {sixHats.map((hat) => (
+                        <MenuItem
+                            key={hat.id} 
+                            onClick={async () => {
+                                handleMenuClose();
+                                llm.openLoadingDialog();
+                                try {
+                                    const result = await applySixHats(
+                                        llm.currentText(),
+                                        hat.id 
+                                    );
+                                    handleLLMResponse(result);
+                                } catch (error) {
+                                    llm.setDialogResult(
+                                        'Errore di connessione o parsing durante la generazione.'
+                                    );
+                                }
+                            }}>
+                            <span
+                                style={{
+                                    display: 'inline-block',
+                                    width: 12,
+                                    height: 12,
+                                    borderRadius: '50%',
+                                    backgroundColor: hat.color,
+                                    marginRight: 8,
+                                    border: hat.id === 'bianco' ? '1px solid #ccc' : 'none' 
+                                }}></span>
+                            {hat.label}
+                        </MenuItem>
+                    ))}
+                </Menu>
+            </header>
 
 			{/* --- DIALOG RIASSUMI --- */}
 			<Dialog open={openSummary} onClose={() => setOpenSummary(false)}>
