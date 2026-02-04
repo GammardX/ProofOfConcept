@@ -24,7 +24,6 @@ app.add_middleware(
 )
 
 async def run_llm_request(messages: list[dict]):
-    """Funzione helper aggiornata per passare messaggi strutturati"""
     try:
         raw = await call_llm(
             messages, 
@@ -41,6 +40,8 @@ async def run_llm_request(messages: list[dict]):
             settings.LLM_API_KEY,
         )
     return extract_json(raw)
+
+# ENDPOINTS
 
 @app.post("/llm/summarize", response_model=LLMResponse)
 async def summarize(payload: dict):
