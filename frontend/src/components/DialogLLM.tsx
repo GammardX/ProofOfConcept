@@ -32,7 +32,6 @@ export default function DialogLLM({
 						</DialogContentText>
 					</div>
 				) : (
-                    // white-space: pre-wrap è fondamentale per mantenere la formattazione e permettere il copia-incolla corretto
 					<DialogContentText style={{ whiteSpace: 'pre-wrap', color: 'text.primary' }}>
                         {text || 'Nessun risultato'}
                     </DialogContentText>
