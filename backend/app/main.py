@@ -14,7 +14,7 @@ origins = [
     "http://localhost:8000",
     "http://localhost:4173",    
     "http://127.0.0.1:5173",    
-    "https://IL-TUO-USERNAME.github.io"
+    "https://GammardX.github.io/ProofOfConcept/"
     "http://padova.zucchetti.it:14000"
 ]
 
