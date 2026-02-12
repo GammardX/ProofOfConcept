@@ -69,4 +69,10 @@ async def translate(payload: dict):
 @app.post("/llm/six-hats", response_model=LLMResponse)
 async def six_hats(payload: dict):
     messages = six_hats_prompt(payload["text"], payload["hat"])
+
     return await run_llm_request(messages)
+
+# risveglia il server
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "message": "Server is awake!"}
