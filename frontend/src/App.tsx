@@ -28,7 +28,13 @@ const DB_KEY = 'my-markdown-notes';
 export default function App() {
     // --- RISVEGLIO SERVER ---
     useEffect(() => {
-        wakeUpServer();
+    wakeUpServer();
+    const intervalId = setInterval(() => {
+      wakeUpServer();
+    }, 14 * 60 * 1000);
+
+    return () => clearInterval(intervalId);
+
     }, []);
 
     // --- STATO DATI ---
