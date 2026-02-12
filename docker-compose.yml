@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: my-backend
+    ports:
+      - "8000:80"
+    env_file:
+      - ./backend/.env  
+    environment:
+      - PORT=80
+      - ALLOWED_ORIGINS=http://localhost:5173
+
+  frontend:
+    build: ./frontend
+    container_name: my-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_BACKEND_URL=http://localhost:8000
+    depends_on:
+      - backend
