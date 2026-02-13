@@ -14,6 +14,17 @@ LLM_API_URL=http://sito:porta/v1/chat/completions
 LLM_MODEL=gpt-oss:20b
 ```
 
+# Usando docker
+Nella root del progetto esegui il comando:
+```cmd
+docker compose up --build
+```
+
+# Per spegnere
+Nel terminale premere Ctrl+C oppure "docker compose down"
+
+
+# Altrimenti senza docker
 # 1 Crea virtual environment python (FastAPI) con requirements.txt
 
 Nella root del progetto esegui il comando:
