@@ -24,19 +24,19 @@ export default function DialogLLM({
 			<DialogTitle>Risultato LLM</DialogTitle>
 
 			<DialogContent dividers>
-				{loading ? (
-					<div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-						<CircularProgress size={22} />
-						<DialogContentText>
-							LLM sta generando la risposta…
-						</DialogContentText>
-					</div>
-				) : (
-					<DialogContentText style={{ whiteSpace: 'pre-wrap', color: 'text.primary' }}>
+                {loading ? (
+                    <div className="dialog-loading-container"> 
+                        <CircularProgress size={22} />
+                        <DialogContentText>
+                            LLM sta generando la risposta…
+                        </DialogContentText>
+                    </div>
+                ) : (
+                    <DialogContentText className="dialog-text-pre" sx={{ color: 'text.primary' }}> 
                         {text || 'Nessun risultato'}
                     </DialogContentText>
-				)}
-			</DialogContent>
+                )}
+            </DialogContent>
 
 			<DialogActions>
 				<Button onClick={onClose} disabled={loading}>

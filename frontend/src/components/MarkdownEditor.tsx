@@ -1,6 +1,6 @@
 import EasyMDE from 'easymde';
 import 'easymde/dist/easymde.min.css';
-import { useEffect, useMemo, useState, MouseEvent } from 'react'; 
+import { useEffect, useMemo, useState, type MouseEvent } from 'react'; 
 import SimpleMDE from 'react-simplemde-editor';
 import '../style/md-editor.css';
 import hljs from 'highlight.js';
@@ -70,8 +70,9 @@ export default function MarkdownEditor({
             if (editorInstance.codemirror) {
                 editorInstance.codemirror.scrollTo(0, 0);
             }
-            if (editorInstance.gui && editorInstance.gui.preview) {
-                editorInstance.gui.preview.scrollTop = 0;
+            const editorAny = editorInstance as any;
+            if (editorAny.gui && editorAny.gui.preview) {
+                editorAny.gui.preview.scrollTop = 0;
             }
             setIsVisible(true); 
             
@@ -116,12 +117,8 @@ export default function MarkdownEditor({
 
     return (
         <div 
-            className='h-full' 
+            className={`h-full editor-fade-container ${isVisible ? 'visible' : ''}`} 
             onClick={handlePreviewClick}
-            style={{ 
-                opacity: isVisible ? 1 : 0, 
-                transition: 'opacity 0.15s ease-in-out' 
-            }}
         >
             <SimpleMDE
                 value={value}

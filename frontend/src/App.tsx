@@ -6,7 +6,7 @@ import MarkdownEditor from './components/MarkdownEditor';
 import TopBar from './components/TopBar';
 import { fileService } from './services/fileService';
 import { wakeUpServer } from './services/llmService';
-import { Alert, Snackbar } from '@mui/material'; 
+import { Alert, Snackbar, Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography } from '@mui/material';
 import './style/main.css';
 
 // --- TIPI ---
@@ -18,7 +18,7 @@ export interface Note {
 }
 
 const WELCOME_NOTE: Note = {
-    id: 'welcome-note',
+    id: Date.now().toString(),
     title: 'Benvenuto',
     content: `# Benvenuto nel tuo Editor!\n\nQuesta nota è stata creata automaticamente.\n\n## Funzionalità:\n* Le note vengono **salvate automaticamente** nel browser.\n* Puoi usare l'AI per riassumere o tradurre.\n* Usa la sidebar per creare nuovi fogli.`,
     createdAt: Date.now()
@@ -124,16 +124,22 @@ export default function App() {
         setActiveNoteId(newNote.id);
     };
 
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
+
+    // --- GESTIONE ELIMINAZIONE NOTA ---
     const handleDeleteNote = (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        const confirm = window.confirm(
-            'Sei sicuro di voler eliminare questa nota?'
-        );
-        if (!confirm) return;
+        setNoteToDelete(id);
+        setDeleteDialogOpen(true);
+    };
+
+    const confirmDelete = () => {
+        if (!noteToDelete) return;
 
         setNotes((prev) => {
-            const newNotes = prev.filter((n) => n.id !== id);
-            if (activeNoteId === id) {
+            const newNotes = prev.filter((n) => n.id !== noteToDelete);
+            if (activeNoteId === noteToDelete) {
                 if (newNotes.length > 0) {
                     setActiveNoteId(newNotes[0].id);
                 } else {
@@ -142,6 +148,14 @@ export default function App() {
             }
             return newNotes;
         });
+
+        setDeleteDialogOpen(false);
+        setNoteToDelete(null);
+    };
+
+    const cancelDelete = () => {
+        setDeleteDialogOpen(false);
+        setNoteToDelete(null);
     };
 
     const handleRenameNote = (id: string, newTitle: string) => {
@@ -250,7 +264,7 @@ export default function App() {
             .catch(err => console.error("Errore nella copia del link:", err));
     };
 
-    const handleCloseSnackbar = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    const handleCloseSnackbar = (_event?: React.SyntheticEvent | Event, reason?: string) => {
         if (reason === 'clickaway') return;
         setSnackbarOpen(false);
     };
@@ -261,11 +275,7 @@ export default function App() {
 
     return (
         <div 
-            className='app-container'
-            style={{ 
-                userSelect: isResizing ? 'none' : 'auto',
-                cursor: isResizing ? 'col-resize' : 'auto' 
-            }}
+            className={`app-container ${isResizing ? 'is-resizing' : ''}`}
         >
             {/* SIDEBAR SINISTRA */}
             <div
@@ -286,12 +296,9 @@ export default function App() {
 
             {/* MANIGLIA DI RIDIMENSIONAMENTO */}
             <div 
-                className='resizer' 
+                className={`resizer ${(sidebarWidth === 10 || isResizing) ? 'active' : ''}`} 
                 onMouseDown={startResizing} 
                 onClick={handleResizerClick}
-                style={{ 
-                    backgroundColor: (sidebarWidth === 10 || isResizing) ? 'var(--accent-color)' : undefined 
-                }}
             />
 
             {/* AREA PRINCIPALE */}
@@ -318,11 +325,20 @@ export default function App() {
                         </div>
                     </>
                 ) : (
-                    <div className='empty-state'>
-                        <p>Nessuna nota selezionata.</p>
-                        <button onClick={handleCreateNote} style={{ marginTop: '1rem' }}>
-                            Crea una nuova nota
-                        </button>
+                    <div className='empty-state-container'>
+                        <div className='empty-state-card'>
+                            <div className='empty-state-icon'>📝</div>
+                            <h1>Inizia a scrivere</h1>
+                            <p>Non hai selezionato nessuna nota. Crea un nuovo foglio o importane uno esistente per iniziare a lavorare.</p>
+                            <div className='empty-state-actions'>
+                                <button onClick={handleCreateNote} className='empty-state-primary-btn'>
+                                    + Nuova Nota
+                                </button>
+                                <button onClick={handleImportNote} className='empty-state-secondary-btn'>
+                                    📂 Importa File
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
@@ -345,6 +361,22 @@ export default function App() {
                 loading={dialogLoading}
                 onClose={() => setDialogOpen(false)}
             />
+
+            {/* DIALOG CONFERMA ELIMINAZIONE */}
+            <Dialog open={deleteDialogOpen} onClose={cancelDelete}>
+                <DialogTitle>Conferma eliminazione</DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        Sei sicuro di voler eliminare questa nota? L'operazione non può essere annullata.
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={cancelDelete}>Annulla</Button>
+                    <Button onClick={confirmDelete} color="error" variant="contained" sx={{ color: 'white' }}>
+                        Elimina
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 }

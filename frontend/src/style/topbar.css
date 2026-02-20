@@ -27,3 +27,15 @@
 .top-bar .actions button:hover {
     background: #f3f4f6;
 }
+
+.hat-color-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.hat-border-white {
+    border: 1px solid #ccc;
+}

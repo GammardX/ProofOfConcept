@@ -189,14 +189,9 @@ export default function TopBar({ title, llm }: TopBarProps) {
                                 }
                             }}>
                             <span
+                                className={`hat-color-dot ${hat.id === 'Bianco' ? 'hat-border-white' : ''}`}
                                 style={{
-                                    display: 'inline-block',
-                                    width: 12,
-                                    height: 12,
-                                    borderRadius: '50%',
-                                    backgroundColor: hat.color,
-                                    marginRight: 8,
-                                    border: hat.id === 'Bianco' ? '1px solid #ccc' : 'none' 
+                                    backgroundColor: hat.color, 
                                 }}></span>
                             {hat.label}
                         </MenuItem>

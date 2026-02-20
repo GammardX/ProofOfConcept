@@ -221,3 +221,12 @@
 .editor-preview-side h6 {
     scroll-margin-top: 20px; 
 }
+
+.editor-fade-container {
+    transition: opacity 0.15s ease-in-out;
+    opacity: 0; 
+}
+
+.editor-fade-container.visible {
+    opacity: 1;
+}
