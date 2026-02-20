@@ -66,3 +66,19 @@ body {
     height: 100%;
 }
 
+/* --- STATUS BAR --- */
+.status-bar {
+    color: var(--text-primary);
+    font-size: 12px;
+    padding: 4px 16px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+}
+
+.status-bar:hover {
+    background-color: var(--border-color);
+}

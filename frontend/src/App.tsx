@@ -6,6 +6,7 @@ import MarkdownEditor from './components/MarkdownEditor';
 import TopBar from './components/TopBar';
 import { fileService } from './services/fileService';
 import { wakeUpServer } from './services/llmService';
+import { Alert, Snackbar } from '@mui/material'; 
 import './style/main.css';
 
 // --- TIPI ---
@@ -209,6 +210,51 @@ export default function App() {
         };
     }, [resize, stopResizing]);
 
+    // --- NAVIGAZIONE TRA NOTE ---
+    const handleNavigate = (target: string, anchor?: string) => {
+        const decodedTarget = decodeURIComponent(target);
+
+        let noteToOpen = notes.find((n) => n.id === decodedTarget);
+
+        if (!noteToOpen) {
+            noteToOpen = notes.find(
+                (n) => n.title.toLowerCase() === decodedTarget.toLowerCase()
+            );
+        }
+
+        if (noteToOpen) {
+            setActiveNoteId(noteToOpen.id);
+
+            if (anchor) {
+                setTimeout(() => {
+                    const elementId = anchor.toLowerCase().replace(/\s+/g, '');
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }, 200);
+            }
+        } else {
+            alert(`Nota "${decodedTarget}" non trovata!`);
+        }
+    };
+
+    // --- GESTIONE COPIA LINK INTERNO ---
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+    const handleCopyInternalLink = () => {
+        if (!activeNote) return;
+        const linkStr = `[Vai a ${activeNote.title}](#note:${activeNote.id})`;
+        navigator.clipboard.writeText(linkStr)
+            .then(() => setSnackbarOpen(true))
+            .catch(err => console.error("Errore nella copia del link:", err));
+    };
+
+    const handleCloseSnackbar = (event?: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') return;
+        setSnackbarOpen(false);
+    };
+
     if (!isLoaded) {
         return <div className='loading-screen'>Caricamento note...</div>;
     }
@@ -258,7 +304,17 @@ export default function App() {
                                 key={activeNote.id}
                                 initialValue={activeNote.content}
                                 onChange={handleUpdateNote}
+                                onNavigate={handleNavigate} 
                             />
+                        </div>
+                        
+                        {/* --- NUOVA STATUS BAR --- */}
+                        <div 
+                            className="status-bar" 
+                            onClick={handleCopyInternalLink}
+                            title="Clicca per copiare il link interno per questa nota"
+                        >
+                            <span>ID Nota: {activeNote.id}</span>
                         </div>
                     </>
                 ) : (
@@ -270,6 +326,18 @@ export default function App() {
                     </div>
                 )}
             </div>
+
+            {/* FEEDBACK COPIA LINK */}
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+                    Ancoraggio copiato: ora incollalo in un'altra nota!
+                </Alert>
+            </Snackbar>
 
             <DialogLLM
                 text={dialogText}

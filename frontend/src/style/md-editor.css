@@ -206,3 +206,18 @@
 	border-radius: 0 4px 4px 0;
 	color: #4b5563;
 }
+
+.editor-preview h1, 
+.editor-preview h2, 
+.editor-preview h3, 
+.editor-preview h4, 
+.editor-preview h5, 
+.editor-preview h6,
+.editor-preview-side h1, 
+.editor-preview-side h2, 
+.editor-preview-side h3, 
+.editor-preview-side h4, 
+.editor-preview-side h5, 
+.editor-preview-side h6 {
+    scroll-margin-top: 20px; 
+}
