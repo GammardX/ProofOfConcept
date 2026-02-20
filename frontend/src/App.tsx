@@ -5,6 +5,7 @@ import FileSidebar from './components/FileSidebar';
 import MarkdownEditor from './components/MarkdownEditor';
 import TopBar from './components/TopBar';
 import { fileService } from './services/fileService';
+import { wakeUpServer } from './services/llmService';
 import './style/main.css';
 
 // --- TIPI ---
@@ -25,6 +26,17 @@ const WELCOME_NOTE: Note = {
 const DB_KEY = 'my-markdown-notes';
 
 export default function App() {
+    // --- RISVEGLIO SERVER ---
+    useEffect(() => {
+    wakeUpServer();
+    const intervalId = setInterval(() => {
+      wakeUpServer();
+    }, 14 * 60 * 1000);
+
+    return () => clearInterval(intervalId);
+
+    }, []);
+
     // --- STATO DATI ---
     const [notes, setNotes] = useState<Note[]>([]);
     const [activeNoteId, setActiveNoteId] = useState<string>('');

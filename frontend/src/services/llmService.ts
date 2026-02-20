@@ -101,3 +101,16 @@ export async function applySixHats(
 		hat
 	});
 }
+
+/*
+Accende il server con una richiesta di salute. 
+Non aspetta la risposta, serve solo a svegliarlo se è in sleep mode
+*/
+
+export function wakeUpServer(): void {
+    fetch(`${BACKEND_BASE_URL}/health`, { 
+        method: 'GET' 
+    }).catch(() => {
+        console.log("Tentativo di wake-up inviato (potrebbe fallire se offline, ma sveglia il server)");
+    });
+}

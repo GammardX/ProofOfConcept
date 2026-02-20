@@ -12,6 +12,10 @@ app = FastAPI()
 origins = [
     "http://localhost:5173",
     "http://localhost:8000",
+    "http://localhost:4173",    
+    "http://127.0.0.1:5173",    
+    "https://gammardX.github.io/ProofOfConcept",
+    "https://gammardx.github.io",
     "http://padova.zucchetti.it:14000"
 ]
 
@@ -65,4 +69,10 @@ async def translate(payload: dict):
 @app.post("/llm/six-hats", response_model=LLMResponse)
 async def six_hats(payload: dict):
     messages = six_hats_prompt(payload["text"], payload["hat"])
+
     return await run_llm_request(messages)
+
+# risveglia il server
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "message": "Server is awake!"}

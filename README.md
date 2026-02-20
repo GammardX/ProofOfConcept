@@ -14,87 +14,14 @@ LLM_API_URL=http://sito:porta/v1/chat/completions
 LLM_MODEL=gpt-oss:20b
 ```
 
-# 1 Crea virtual environment python (FastAPI) con requirements.txt
-
+# Usando docker
 Nella root del progetto esegui il comando:
-importante avere la versione pyton 3.12.x poichè versioni più recenti risultano instabili
-
 ```cmd
-py -3.12 -m venv .venv
-.venv\Scripts\activate
-pip install -r backend/requirements.txt
+docker compose up --build
 ```
 
-Questo comando basta eseguirlo la prima volta e basta
-
-# 2 Avviare in due terminali attivi contemporaneamente backend e frontend
-
-## 2.1 Avvio backend
-
-```cmd
-.venv\Scripts\activate
-cd backend
-uvicorn app.main:app --reload
-```
-
-## 2.2 Avvio frontend
-### 2.2.1 Avvio frontend user
-
-```cmd
-cd frontend
-npm install
-npm run build
-npm run preview
-```
-
-### 2.2.1 Avvio frontend developer
-
-```cmd
-cd frontend
-npm run dev
-```
-
-## Se non funziona, segui questi passi:
-
-1️⃣ Verifica installazione Python
-
-In PowerShell / CMD:
-
-```cmd
-python --version
-```
-
-2️⃣ Crea un virtual environment (se non esiste)
-
-Nella root del progetto:
-
-```cmd
-py -3.12 -m venv .venv
-```
-
-3️⃣ Attiva il virtualenv (Windows) .venv\Scripts\activate
-
-Dovresti vedere:
-
-(.venv) PS C:\tuo\progetto>
-
-⚠️ Se non vedi (venv) NON è attivo
-
-4️⃣ Installa FastAPI + Uvicorn pip install fastapi uvicorn
-
-Verifica:
-
-```cmd
-uvicorn --version
-```
-
-5️⃣ Avvia FastAPI (comando corretto)
-
-⚠️ devi essere nella cartella backend (oppure adattare il path)
-
-```cmd
-uvicorn app.main:app --reload
-```
+# Per spegnere
+Nel terminale premere Ctrl+C oppure "docker compose down"
 
 # React + TypeScript + Vite
 
