@@ -1,22 +1,22 @@
 import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Menu,
-    MenuItem,
-    Slider,
-    TextField,
-    Typography
+	Button,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogTitle,
+	Menu,
+	MenuItem,
+	Slider,
+	TextField,
+	Typography
 } from '@mui/material';
 import { useState } from 'react';
 import {
-    applySixHats,
-    improveWriting,
-    summarizeText,
-    translate,
-    type LLMResponse
+	applySixHats,
+	improveWriting,
+	summarizeText,
+	translate,
+	type LLMResponse
 } from '../services/llmService.ts';
 import '../style/topbar.css';
 
@@ -151,7 +151,7 @@ export default function TopBar({ title, llm }: TopBarProps) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const openMenu = Boolean(anchorEl);
 
-    const handleMenuClose = () => {
+    const handleSixHats = () => {
         setAnchorEl(null);
     };
 
@@ -169,12 +169,12 @@ export default function TopBar({ title, llm }: TopBarProps) {
                         🧢 Analisi
                     </button>
                 </div>
-                <Menu anchorEl={anchorEl} open={openMenu} onClose={handleMenuClose}>
+                <Menu anchorEl={anchorEl} open={openMenu} onClose={handleSixHats}>
                     {sixHats.map((hat) => (
                         <MenuItem
                             key={hat.id} 
                             onClick={async () => {
-                                handleMenuClose();
+                                handleSixHats();
                                 llm.openLoadingDialog();
                                 try {
                                     const result = await applySixHats(
